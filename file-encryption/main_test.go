@@ -7,9 +7,3 @@ func TestSanity(t *testing.T) {
 		t.Fatal("expected true; got false")
 	}
 }
-
-func TestFailing(t *testing.T) {
-	if true {
-		t.Fatal("Get lost")
-	}
-}
