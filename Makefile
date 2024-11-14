@@ -1,14 +1,11 @@
 all: test build
 
 # ADD YOUR MICROSERVICE FOLDER HERE
-SERVICES=file-encryption
+SERVICES=file-encryption accounts
 
 build:
-	for service in $(SERVICES) ; do \
-		echo "Building $$service..."; \
-  		cd $$service; \
-		docker compose up --build; \
-	done
+	echo "Building services..."; \
+	docker compose up --build
 
 test:
 	failed=0; \
@@ -19,4 +16,4 @@ test:
 		cd ..; \
 	done; \
 	echo "$$failed tests failed."; \
-	exit $$failed;
+	exit $$failed

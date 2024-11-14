@@ -1,5 +1,0 @@
-services:
-  file-encryption:
-    build: .
-    container_name: file-encryption
-    image: file-encryption:0.1

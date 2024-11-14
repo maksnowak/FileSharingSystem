@@ -1,0 +1,9 @@
+services:
+  file-encryption:
+    build: file-encryption
+    container_name: file-encryption
+    image: file-encryption:0.1
+  accounts:
+    build: accounts
+    container_name: accounts
+    image: accounts:0.1
