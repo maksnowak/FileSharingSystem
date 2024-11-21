@@ -1,7 +1,7 @@
 all: test build
 
 # ADD YOUR MICROSERVICE FOLDER HERE
-SERVICES=file-encryption accounts
+SERVICES=file-encryption file-transfer accounts
 
 build:
 	echo "Building services..."; \
