@@ -9,7 +9,8 @@ func TestPassing(t *testing.T) {
 }
 
 func TestAddOne(t *testing.T) {
-	if addOne(7) != 8 {
+	x := 7
+	if addOne(&x) != 8 {
 		t.Fatal("7 + 1 does not equal 8")
 	}
 }

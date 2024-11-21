@@ -1,0 +1,32 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Webserver serving a complete implementation of account managing API endpoint.",
+        "title": "Accounts API",
+        "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/license/mit"
+        },
+        "version": "0.1"
+    },
+    "basePath": "/",
+    "paths": {
+        "/hello": {
+            "get": {
+                "description": "Increment the counter and greet the user",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Example: Hello from 'accounts' times 3!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
