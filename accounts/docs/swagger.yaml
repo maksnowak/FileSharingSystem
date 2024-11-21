@@ -1,0 +1,22 @@
+basePath: /
+info:
+  contact: {}
+  description: Webserver serving a complete implementation of account managing API
+    endpoint.
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  title: Accounts API
+  version: "0.1"
+paths:
+  /hello:
+    get:
+      description: Increment the counter and greet the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: Hello from ''accounts'' times 3!'
+          schema:
+            type: string
+swagger: "2.0"
