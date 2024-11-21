@@ -4,13 +4,39 @@
 # https://aka.ms/yaml
 
 trigger:
-  - main
+  - pipeline
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: "ubuntu-latest"
 
-steps:
-  - checkout: self
+variables:
+  SSH_HOST: "pisVM"
+  SSH_USER: "azureuser"
+  REPO_URL: "https://github.com/maksnowak/FileSharingSystem"
+  WORK_DIR: "/home/app"
 
-  - script: echo Hello, world!
-    displayName: "Run a one-line script"
+stages:
+  - stage: Deploy
+    displayName: Deploy Application
+    jobs:
+      - job: SSH_and_Deploy
+        displayName: SSH to VM and Deploy
+        steps:
+          - task: InstallSSHKey@0
+            inputs:
+              sshPublicKey: $(sshPublicKey)
+              sshKeySecureFile: "pisVMkey.pem"
+
+          - script: |
+              ssh -o StrictHostKeyChecking=no $(SSH_USER)@$(SSH_HOST) << 'EOF'
+                echo "SSH Connection Established"
+                mkdir -p $(WORK_DIR)
+                cd $(WORK_DIR)
+                if [ -d ".git" ]; then
+                  git pull
+                else
+                  git clone $(REPO_URL) .
+                fi
+                docker-compose up -d --build
+              EOF
+            displayName: SSH into VM and Deploy
