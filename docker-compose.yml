@@ -3,6 +3,10 @@ services:
     build: file-encryption
     container_name: file-encryption
     image: file-encryption:0.1
+  file-transfer:
+    build: file-transfer
+    container_name: file-transfer
+    image: file-transfer:0.1
   accounts:
     build: accounts
     container_name: accounts
