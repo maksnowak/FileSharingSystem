@@ -13,7 +13,7 @@ variables:
   SSH_HOST: "20.251.144.99"
   SSH_USER: "azureuser"
   REPO_URL: "https://github.com/maksnowak/FileSharingSystem"
-  WORK_DIR: "/home/app"
+  WORK_DIR: "/home/azureuser/app"
 
 stages:
   - stage: Deploy
