@@ -24,7 +24,7 @@ stages:
         steps:
           - task: InstallSSHKey@0
             inputs:
-              sshPublicKey: $(sshPublicKey)
+              hostName: $(SSH_HOST)
               sshKeySecureFile: "pisVMkey.pem"
 
           - script: |
