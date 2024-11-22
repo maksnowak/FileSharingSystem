@@ -37,7 +37,7 @@ stages:
                 else
                   git clone $(REPO_URL) .
                 fi
-                docker-compose down
-                docker-compose up -d --build
+                docker compose down
+                docker compose up -d --build
               EOF
             displayName: SSH into VM and Deploy
