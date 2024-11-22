@@ -16,4 +16,4 @@ services:
     container_name: frontend
     image: frontend:0.1
     ports:
-      - "8080:80"
+      - "80:80"

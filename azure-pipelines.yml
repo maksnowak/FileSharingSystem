@@ -4,16 +4,40 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+  - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: "ubuntu-latest"
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+  SSH_HOST: "20.215.42.144"
+  SSH_USER: "azureuser"
+  REPO_URL: "https://github.com/maksnowak/FileSharingSystem"
+  WORK_DIR: "/home/azureuser/app"
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+  - stage: Deploy
+    displayName: Deploy Application
+    jobs:
+      - job: SSH_and_Deploy
+        displayName: SSH to VM and Deploy
+        steps:
+          - task: InstallSSHKey@0
+            inputs:
+              hostName: $(SSH_HOST)
+              sshKeySecureFile: "pisVMkey.pem"
+
+          - script: |
+              ssh -o StrictHostKeyChecking=no $(SSH_USER)@$(SSH_HOST) << 'EOF'
+                echo "SSH Connection Established"
+                mkdir -p $(WORK_DIR)
+                cd $(WORK_DIR)
+                if [ -d ".git" ]; then
+                  git pull
+                else
+                  git clone $(REPO_URL) .
+                fi
+                docker compose down
+                docker compose up -d --build
+              EOF
+            displayName: SSH into VM and Deploy
