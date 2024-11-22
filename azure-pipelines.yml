@@ -10,7 +10,7 @@ pool:
   vmImage: "ubuntu-latest"
 
 variables:
-  SSH_HOST: "20.251.144.99"
+  SSH_HOST: "20.215.42.144"
   SSH_USER: "azureuser"
   REPO_URL: "https://github.com/maksnowak/FileSharingSystem"
   WORK_DIR: "/home/azureuser/app"
