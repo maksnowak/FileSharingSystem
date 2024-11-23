@@ -8,6 +8,27 @@
 - System będzie można wyeksportować/zaimportować, aby umożliwić posadowienie programu na innym serwerze bez utraty zaszyfrowanych plików, kategorii i tagów.
 - System będzie umożliwiał tworzenia kont użytkowników, gdzie każdy użytkownik będzie posiadał pliki prywatne, ogólnodostępne pliki publiczne oraz będzie mógł udostępnić swoje pliki innemu użytkownikowi. Będzie także prowadzona ewidencja dostępu do własnych plików użytkownika (ile było pobrań, kto i kiedy pobrał).
 
+## Jak zacząć lokalnie?
+> Należy wpierw zainstalować make, technologie frontend/backend oraz Docker
+
+Należy sklonować repozytorium
+```shell
+git clone https://github.com/maksnowak/FileSharingSystem
+cd FileSharingSystem
+```
+W środowisku Linux wystarczy wywołać polecenie
+```shell
+make
+```
+
+### Inny system?
+> Docker musi być zainstalowany lokalnie
+
+Alternatywnie można uruchomić cały stack bez uruchamiania testów używając konteneryzacji Docker
+```shell
+docker compose up --build
+```
+
 ## Architektura:
 Projekt zostanie zaimplementowany w następującej architekturze mikroserwisowej:
 -	Client (frontend) + Serwer
@@ -18,9 +39,11 @@ Projekt zostanie zaimplementowany w następującej architekturze mikroserwisowej
 W razie potrzeby można zmniejszyć/zwiększyć ilość mikroserwisów.
 
 ## Technologie:
--	Frontend: Vue.js
--	Backend: Go
--	Database: MongoDB  
+-	Frontend: Vue.js 3.5
+-	Backend: Go 1.23
+-	Database: MongoDB 7.0 
+-   Containerization: Docker 27.3
+
 ### Środowisko Developerskie:
 -	VCS + wrzucanie releasów: GitHub
 -	CI/CD: Azure DevOps
@@ -30,7 +53,7 @@ W razie potrzeby można zmniejszyć/zwiększyć ilość mikroserwisów.
      -	Możliwość *zabicia* aplikacji
 -	Wspierane systemu: Ubuntu Linux
 -	IDE: Goland (backend), VsCode (frontend)
--	Zarządzanie zadaniami : GitHub Issues
+-	Zarządzanie zadaniami: GitHub Issues
 -	Pokrycie kodu testami: `go test –cover`, Vitest 
 
 ## Kontrybucje
