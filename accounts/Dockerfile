@@ -1,5 +1,11 @@
-FROM golang:1.23-alpine
+FROM golang:1.23-alpine AS build-stage
 LABEL authors="Paweł (Duszke333) Wysocki"
+WORKDIR /build
 COPY . .
-RUN go build
-ENTRYPOINT ["./accounts"]
+RUN go mod download
+RUN go build -o main
+
+FROM scratch
+WORKDIR /app
+COPY --from=build-stage /build/main .
+ENTRYPOINT ["./main"]
