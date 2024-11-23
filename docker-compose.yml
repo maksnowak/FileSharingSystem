@@ -3,6 +3,7 @@ services:
     build: file-encryption
     container_name: file-encryption
     image: file-encryption:0.1
+    env_file: .env
   file-transfer:
     build: file-transfer
     container_name: file-transfer
