@@ -19,6 +19,10 @@ test:
 		go test ./... || failed=$$(($$failed + 1)); \
 		cd ..; \
 	done; \
+	echo "Running frontend tests..."; \
+	cd frontend; \
+	npm run test:unit || failed=$$(($$failed + 1)); \
+	cd ..; \
 	echo "$$failed tests failed."; \
 	exit $$failed
 
@@ -28,4 +32,8 @@ test-coverage:
 		cd $$service; \
 		go test -cover ./...; \
 		cd ..; \
+	echo "Running frontend coverage tests..."; \
 	done; \
+	cd frontend; \
+	npm run test:coverage; \
+	cd ..; \
