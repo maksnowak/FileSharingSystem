@@ -18,6 +18,7 @@ variables:
 stages:
   - stage: Deploy
     displayName: Deploy Application
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     jobs:
       - job: SSH_and_Deploy
         displayName: SSH to VM and Deploy
