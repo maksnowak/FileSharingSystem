@@ -15,6 +15,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@primevue/forms": "^4.2.4",
+    "@primevue/themes": "^4.2.4",
+    "primevue": "^4.2.4",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },
