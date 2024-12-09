@@ -23,27 +23,25 @@ import (
 
 // @BasePath	/
 func main() {
-	// parse flags
-	fmt.Println("Hello from `accounts` microservice!")
 	port := flag.String("port", "2024", "Port to listen on.")
-	addr := flag.String("address", "localhost", "Address of the API endpoint")
+	host := flag.String("address", "localhost", "Address of the API endpoint")
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "Server: ", log.Flags())
+	logger := log.New(os.Stdout, "server: ", log.Flags())
 
-	// define api endpoints
-	rout := chi.NewRouter()
+	r := chi.NewRouter()
 	{
-		rout.Get("/swagger/*", httpSwagger.Handler(
-			httpSwagger.URL(fmt.Sprintf("http://%v:%v/swagger/doc.json", *addr, *port)),
-		))
-		rout.Get("/hello", Hello)
+		if os.Getenv("APP_ENV") != "prod" {
+			addr := fmt.Sprintf("http://localhost:%v/swagger/", *port)
+			r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(addr+"doc.json")))
+			logger.Printf("Swagger UI available at %v\n", addr+"index.html")
+		}
+		r.Get("/hello", Hello)
 	}
 
-	// start server
-	serv := &http.Server{Addr: *addr + ":" + *port, Handler: rout}
+	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
 	go func() {
-		logger.Printf("http: Listening on %v:%v\n", *addr, *port)
+		logger.Printf("http: Listening on %v:%v\n", *host, *port)
 		if err := serv.ListenAndServe(); err != nil {
 			logger.Fatalln(err)
 		}
