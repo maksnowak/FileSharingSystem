@@ -11,7 +11,11 @@ services:
   accounts:
     build: accounts
     container_name: accounts
-    image: accounts:0.1
+    image: accounts:0.2
+    ports:
+      - "2024:2024"
+    environment:
+      - APP_ENV=prod
   frontend:
     build: frontend
     container_name: frontend
