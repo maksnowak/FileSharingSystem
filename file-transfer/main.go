@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	fmt.Println("Hello, file transfer microservice!")
+	fmt.Print("Hello from file-transfer microservice")
 }
