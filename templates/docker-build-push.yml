@@ -1,18 +1,17 @@
 parameters:
-  appName: ''
-  directory: ''
+  appName: ""
+  directory: ""
 
 jobs:
   - job: Docker${{ parameters.appName }}
-    displayName: 'Docker operations for ${{ parameters.appName }}'
+    displayName: "Docker operations for ${{ parameters.appName }}"
     steps:
       - script: |
           cd ${{ parameters.directory }}
           docker build -t $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId) .
           docker login $(dockerRegistry) -u $(dockerRegistryUsername) -p $(dockerRegistryPassword)
           docker push $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
-        displayName: 'Build and push ${{ parameters.appName }}'
-      env:
-        dockerRegistryUsername: $(dockerRegistryUsername)
-        dockerRegistryPassword: $(dockerRegistryPassword)
-
+        displayName: "Build and push ${{ parameters.appName }}"
+        env:
+          dockerRegistryUsername: $(dockerRegistryUsername)
+          dockerRegistryPassword: $(dockerRegistryPassword)

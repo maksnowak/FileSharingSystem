@@ -18,8 +18,7 @@ jobs:
             docker run -d -p ${{ parameters.port }} $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
           EOF
         displayName: SSH into VM and run Docker image
-
-      env:
-        SSH_HOST: $(SSH_HOST)
-        SSH_USER: $(SSH_USER)
-        dockerRegistry: $(dockerRegistry)
+        env:
+          SSH_HOST: $(SSH_HOST)
+          SSH_USER: $(SSH_USER)
+          dockerRegistry: $(dockerRegistry)
