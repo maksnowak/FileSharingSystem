@@ -15,7 +15,7 @@ stages:
     jobs:
       - template: templates/go-test.yml
         parameters:
-          appName: "file-transfer"
+          appName: "file_transfer"
           directory: "file-transfer/"
 
   - stage: DockerBuildAndPush
@@ -24,7 +24,7 @@ stages:
     jobs:
       - template: templates/docker-build-push.yml
         parameters:
-          appName: "file-transfer"
+          appName: "file_transfer"
           directory: "file-transfer/"
 
   - stage: Deploy
@@ -33,5 +33,5 @@ stages:
     jobs:
       - template: templates/deploy.yml
         parameters:
-          appName: "file-transfer"
+          appName: "file_transfer"
           port: "8080:8080"
