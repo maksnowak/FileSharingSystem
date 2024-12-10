@@ -1,0 +1,13 @@
+parameters:
+  appName: ""
+  directory: ""
+
+jobs:
+  - job: Test${{ parameters.appName }}
+    displayName: "Test ${{ parameters.appName }}"
+    steps:
+      - script: |
+          cd ${{ parameters.directory }}
+          go build -o ${{ parameters.appName }}
+          go test ./...
+        displayName: "Build and test ${{ parameters.appName }}"

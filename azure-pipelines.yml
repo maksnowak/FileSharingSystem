@@ -1,44 +1,34 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
 trigger:
-  - main
+  - "*"
 
 pool:
   vmImage: "ubuntu-latest"
 
 variables:
-  SSH_HOST: "20.215.42.144"
-  SSH_USER: "azureuser"
-  REPO_URL: "https://github.com/maksnowak/FileSharingSystem"
-  WORK_DIR: "/home/azureuser/app"
+  - group: deploy-variables
+  - group: docker-registry-credentials
 
 stages:
-  - stage: Deploy
-    displayName: Deploy Application
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  - stage: BuildAndTest
     jobs:
-      - job: SSH_and_Deploy
-        displayName: SSH to VM and Deploy
-        steps:
-          - task: InstallSSHKey@0
-            inputs:
-              hostName: $(SSH_HOST)
-              sshKeySecureFile: "pisVMkey.pem"
+      - template: templates/go-test.yml
+        parameters:
+          appName: "file-transfer"
+          directory: "file-transfer/"
 
-          - script: |
-              ssh -o StrictHostKeyChecking=no $(SSH_USER)@$(SSH_HOST) << 'EOF'
-                echo "SSH Connection Established"
-                mkdir -p $(WORK_DIR)
-                cd $(WORK_DIR)
-                if [ -d ".git" ]; then
-                  git pull
-                else
-                  git clone $(REPO_URL) .
-                fi
-                docker compose down
-                docker compose up -d --build
-              EOF
-            displayName: SSH into VM and Deploy
+  - stage: DockerBuildAndPush
+    jobs:
+      - template: templates/docker-build-push.yml
+        parameters:
+          appName: "file-transfer"
+          directory: "file-transfer/"
+
+  - stage: Deploy
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - template: templates/deploy.yml
+        parameters:
+          appName: "file-transfer"
+          port: "8080:8080"
