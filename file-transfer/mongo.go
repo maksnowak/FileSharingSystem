@@ -2,26 +2,29 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"os"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var collection *mongo.Collection
-var ctx = context.TODO()
+func initMongo(ctx *context.Context) (*mongo.Collection, *mongo.Client) {
+	_ = godotenv.Load("../.env")
 
-func init() {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:2717/")
-	client, err := mongo.Connect(ctx, clientOptions)
+	clientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URI"))
+	client, err := mongo.Connect(*ctx, clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		panic(fmt.Sprintf("Mongo DB Connect issue %s", err))
 	}
 
-	err = client.Ping(ctx, nil)
+	err = client.Ping(*ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		panic(fmt.Sprintf("Mongo DB ping issue %s", err))
 	}
 
-	log.Print("Connected to MongoDB")
+	fmt.Print("Connected to MongoDB")
+	collection := client.Database("files").Collection("Files")
+	return collection, client
 }
