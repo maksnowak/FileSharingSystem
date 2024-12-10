@@ -19,6 +19,8 @@ stages:
           directory: "file-transfer/"
 
   - stage: DockerBuildAndPush
+    dependsOn: BuildAndTest
+    condition: succeeded()
     jobs:
       - template: templates/docker-build-push.yml
         parameters:
@@ -26,6 +28,7 @@ stages:
           directory: "file-transfer/"
 
   - stage: Deploy
+    dependsOn: DockerBuildAndPush
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     jobs:
       - template: templates/deploy.yml
