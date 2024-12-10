@@ -3,7 +3,7 @@ parameters:
   directory: ""
 
 jobs:
-  - job: Test${{ parameters.appName }}
+  - job: Test_${{ parameters.appName }}
     displayName: "Test ${{ parameters.appName }}"
     steps:
       - script: |

@@ -3,7 +3,7 @@ parameters:
   directory: ""
 
 jobs:
-  - job: Docker${{ parameters.appName }}
+  - job: Docker_${{ parameters.appName }}
     displayName: "Docker operations for ${{ parameters.appName }}"
     steps:
       - script: |
