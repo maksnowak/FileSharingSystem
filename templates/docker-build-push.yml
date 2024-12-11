@@ -6,13 +6,18 @@ jobs:
   - job: Docker_${{ parameters.appName }}
     displayName: "Docker operations for ${{ parameters.appName }}"
     steps:
-      - script: |
-          cd ${{ parameters.directory }}
-          docker build -t $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId) .
-          docker login $(dockerRegistry) -u $(dockerRegistryUsername) -p $(dockerRegistryPassword)
-          docker push $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
-        displayName: "Build and push ${{ parameters.appName }}"
+      - task: Docker@2
+        displayName: Login to Docker Hub
+        inputs:
+          command: login
+          containerRegistry: $(dockerRegistry)
+      - task: Docker@2
+        displayName: Build and Push
+        inputs:
+          command: buildAndPush
+          Dockerfile: $(Build.SourcesDirectory)/${{ parameters.directory }}/Dockerfile
+          repository: $(dockerRegistry)/${{ parameters.appName }}
+          tags: |
+            $(Build.BuildId)
         env:
-          dockerRegistryUsername: $(dockerRegistryUsername)
-          dockerRegistryPassword: $(dockerRegistryPassword)
           dockerRegistry: $(dockerRegistry)
