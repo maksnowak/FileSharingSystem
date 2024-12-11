@@ -49,8 +49,9 @@ func main() {
 	// A good base middleware stack
 
 	r.Route("/accounts", func(r chi.Router) {
-		r.Post("/", handlers.RegisterHandler) // POST register account
-		r.Get("/", handlers.GetAllAccounts)   // GET retrieve all accounts
+		r.Post("/", handlers.RegisterHandler)        // POST register account
+		r.Get("/", handlers.GetAllAccounts)          // GET retrieve all accounts
+		r.Get("/{user_id}", handlers.GetAccountByID) // GET account by ID
 	})
 
 	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
