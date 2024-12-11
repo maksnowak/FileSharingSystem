@@ -52,6 +52,7 @@ func main() {
 		r.Post("/", handlers.RegisterHandler)        // POST register account
 		r.Get("/", handlers.GetAllAccounts)          // GET retrieve all accounts
 		r.Get("/{user_id}", handlers.GetAccountByID) // GET account by ID
+		r.Put("/{user_id}", handlers.UpdateAccount)  // PUT update an account
 	})
 
 	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
