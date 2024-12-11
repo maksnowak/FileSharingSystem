@@ -26,7 +26,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// checking if any required fields are missing
 	if user.Username == "" || user.Email == "" || user.PasswordHash == "" || user.PasswordSalt == "" || user.Role == "" {
-		log.Println(err)
+		log.Println("Incomplete data")
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
