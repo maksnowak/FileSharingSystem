@@ -22,9 +22,11 @@ func (a *App) Initialize() {
 
 	a.Router = mux.NewRouter()
 	a.MongoCollection, a.MongoClient = initMongo(&ctx)
+  a.initRoutes()
 }
 
 func (a *App) Run(addr string) {
+  http.Handle("/", a.Router)
 	err := http.ListenAndServe(addr, a.Router)
 	if err != nil {
 		panic(fmt.Sprintf("Could not start server: %s", err))
@@ -32,11 +34,24 @@ func (a *App) Run(addr string) {
 }
 
 func (a *App) initRoutes() {
+  a.Router.HandleFunc("/health", a.healthCheck).Methods(http.MethodGet)
+
 	a.Router.HandleFunc("/file", a.createFile).Methods(http.MethodPost)
 	a.Router.HandleFunc("/files", a.getAllFiles).Methods(http.MethodGet)
 	a.Router.HandleFunc("/file/{file_id}", a.getFile).Methods(http.MethodGet)
 	a.Router.HandleFunc("/file/{file_id}", a.updateFile).Methods(http.MethodPut)
 	a.Router.HandleFunc("/file/{file_id}", a.deleteFile).Methods(http.MethodDelete)
+}
+
+func (a *App) Close() {
+  ctx := context.TODO()
+  if err := a.MongoClient.Disconnect(ctx); err != nil {
+    panic(fmt.Sprintf("Could not close connection: %s", err))
+  }
+}
+
+func (a *App) healthCheck(w http.ResponseWriter, r *http.Request) {
+  respondWithJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
 func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +60,7 @@ func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&f); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+    respondWithError(w, http.StatusBadRequest, "Invalid request payload:" + err.Error())
 		return
 	}
 	defer r.Body.Close()
@@ -99,7 +114,7 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	f := File{FileID: id}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&f); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+    respondWithError(w, http.StatusBadRequest, "Invalid request payload:" + err.Error())
 		return
 	}
 	defer r.Body.Close()

@@ -13,7 +13,12 @@ import (
 func initMongo(ctx *context.Context) (*mongo.Collection, *mongo.Client) {
 	_ = godotenv.Load("../.env")
 
-	clientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URI"))
+  credentials := options.Credential{
+    Username: os.Getenv("MONGODB_USERNAME"),
+    Password: os.Getenv("MONGODB_PASSWORD"),
+  }
+
+	clientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URI")).SetAuth(credentials)
 	client, err := mongo.Connect(*ctx, clientOptions)
 	if err != nil {
 		panic(fmt.Sprintf("Mongo DB Connect issue %s", err))
