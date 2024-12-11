@@ -56,6 +56,10 @@ func main() {
 		r.Delete("/{user_id}", handlers.DeleteAccount) // DELETE an account
 	})
 
+	r.Route("/login", func(r chi.Router) {
+		r.Get("/{username}", handlers.GetPasswordSalt) // GET the password salt of the user
+	})
+
 	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
 	go func() {
 		logger.Printf("http: Listening on %v:%v\n", *host, *port)
