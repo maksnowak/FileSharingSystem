@@ -19,3 +19,8 @@ type User struct {
 	OwnedFiles   []string      `bson:"ownedFiles" json:"ownedFiles"`
 	SharedFiles  []string      `bson:"sharedFiles" json:"sharedFiles"`
 }
+
+type Credentials struct {
+	Username     string `bson:"username" json:"username"`
+	PasswordHash string `bson:"passwordHash" json:"passwordHash"`
+}

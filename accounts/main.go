@@ -58,6 +58,7 @@ func main() {
 
 	r.Route("/login", func(r chi.Router) {
 		r.Get("/{username}", handlers.GetPasswordSalt) // GET the password salt of the user
+		r.Get("/", handlers.Login)                     // GET try to log in the user
 	})
 
 	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
