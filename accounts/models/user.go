@@ -2,14 +2,17 @@ package models
 
 import "time"
 
+// # User
+//
+// A structure representing MongoDB User structure
 type User struct {
 	ID           string    `bson:"_id,omitempty" json:"id,omitempty"`
-	username     string    `bson:"username" json:"username"`
-	email        string    `bson:"email" json:"email"`
-	passwordHash string    `bson:"passwordHash" json:"-"`
-	passwordSalt string    `bson:"passwordSalt" json:"-"`
-	createdAt    time.Time `bson:"createdAt" json:"createdAt"`
-	role         string    `bson:"role" json:"role"`
-	ownedFiles   []string  `bson:"ownedFiles" json:"ownedFiles"`
-	sharedFiles  []string  `bson:"sharedFiles" json:"sharedFiles"`
+	Username     string    `bson:"username" json:"username"`
+	Email        string    `bson:"email" json:"email"`
+	PasswordHash string    `bson:"passwordHash" json:"passwordHash"`
+	PasswordSalt string    `bson:"passwordSalt" json:"passwordSalt"`
+	CreatedAt    time.Time `bson:"createdAt" json:"createdAt"`
+	Role         string    `bson:"role" json:"role"`
+	OwnedFiles   []string  `bson:"ownedFiles" json:"ownedFiles"`
+	SharedFiles  []string  `bson:"sharedFiles" json:"sharedFiles"`
 }

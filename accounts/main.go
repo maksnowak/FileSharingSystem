@@ -3,10 +3,12 @@ package main
 import (
 	"accounts/db"
 	_ "accounts/docs"
+	"accounts/handlers"
 	"context"
 	"flag"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
@@ -32,6 +34,10 @@ func main() {
 
 	r := chi.NewRouter()
 	{
+		r.Use(middleware.RequestID)
+		r.Use(middleware.RealIP)
+		r.Use(middleware.Logger)
+		r.Use(middleware.Recoverer)
 		if os.Getenv("APP_ENV") != "prod" {
 			addr := fmt.Sprintf("http://localhost:%v/swagger/", *port)
 			r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(addr+"doc.json")))
@@ -39,6 +45,12 @@ func main() {
 		}
 		//r.Get("/hello", Hello)
 	}
+
+	// A good base middleware stack
+
+	r.Route("/accounts", func(r chi.Router) {
+		r.Post("/", handlers.RegisterHandler) // POST register account
+	})
 
 	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
 	go func() {
@@ -50,7 +62,6 @@ func main() {
 
 	// DB USAGE
 	db.Connect()
-	db.GetCollection("users")
 
 	// graceful shutdown
 	stop := make(chan os.Signal, 1)
