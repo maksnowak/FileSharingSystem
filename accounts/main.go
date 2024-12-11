@@ -1,6 +1,7 @@
 package main
 
 import (
+	"accounts/db"
 	_ "accounts/docs"
 	"context"
 	"flag"
@@ -36,7 +37,7 @@ func main() {
 			r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(addr+"doc.json")))
 			logger.Printf("Swagger UI available at %v\n", addr+"index.html")
 		}
-		r.Get("/hello", Hello)
+		//r.Get("/hello", Hello)
 	}
 
 	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
@@ -47,6 +48,10 @@ func main() {
 		}
 	}()
 
+	// DB USAGE
+	db.Connect()
+	db.GetCollection("users")
+
 	// graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -55,6 +60,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	db.Disconnect()
 	if err := serv.Shutdown(ctx); err != nil {
 		panic(err)
 	}
