@@ -50,6 +50,7 @@ func main() {
 
 	r.Route("/accounts", func(r chi.Router) {
 		r.Post("/", handlers.RegisterHandler) // POST register account
+		r.Get("/", handlers.GetAllAccounts)   // GET retrieve all accounts
 	})
 
 	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
