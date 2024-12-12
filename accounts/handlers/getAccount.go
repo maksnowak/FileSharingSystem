@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"log"
 	"net/http"
 )
 
@@ -27,14 +26,12 @@ func GetAllAccounts(w http.ResponseWriter, _ *http.Request) {
 
 	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
-		log.Println(err)
 		http.Error(w, "Error while reading database", http.StatusInternalServerError)
 		return
 	}
 
 	err = cursor.All(ctx, &users)
 	if err != nil {
-		log.Println(err)
 		http.Error(w, "Error while mapping data", http.StatusInternalServerError)
 		return
 	}
@@ -62,7 +59,6 @@ func GetAccountByID(w http.ResponseWriter, r *http.Request) {
 
 	objectID, err := bson.ObjectIDFromHex(ID)
 	if err != nil {
-		log.Println(err)
 		http.Error(w, "Invalid account ID format", http.StatusBadRequest)
 		return
 	}
@@ -71,7 +67,6 @@ func GetAccountByID(w http.ResponseWriter, r *http.Request) {
 	collection := db.GetCollection("users")
 	err = collection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&user)
 	if err != nil {
-		log.Println(err)
 		http.Error(w, "Account not found", http.StatusNotFound)
 		return
 	}
