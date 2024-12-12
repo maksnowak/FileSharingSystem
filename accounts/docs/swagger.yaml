@@ -1,4 +1,130 @@
 basePath: /
+definitions:
+  models.Credentials:
+    properties:
+      passwordHash:
+        example: ZbazowaneDane123
+        type: string
+      username:
+        example: Jon_Bon_Jovi
+        type: string
+    type: object
+  models.HTTP200:
+    properties:
+      message:
+        example: Operation successful
+        type: string
+    type: object
+  models.HTTP400:
+    properties:
+      message:
+        example: Invalid request body
+        type: string
+    type: object
+  models.HTTP404:
+    properties:
+      message:
+        example: Could not find requested data
+        type: string
+    type: object
+  models.HTTP500:
+    properties:
+      message:
+        example: Error while processing request
+        type: string
+    type: object
+  models.Register:
+    properties:
+      email:
+        example: huan.pablo.dos@vatican.city
+        type: string
+      passwordHash:
+        example: Kremowki
+        type: string
+      passwordSalt:
+        example: Slony_Karmel
+        type: string
+      role:
+        example: admin
+        type: string
+      username:
+        example: Karol_Wojtyla
+        type: string
+    type: object
+  models.Salt:
+    properties:
+      passwordSalt:
+        example: Slony_Karmel
+        type: string
+      username:
+        example: Karol_Wojtyla
+        type: string
+    type: object
+  models.Update:
+    properties:
+      email:
+        example: huan.pablo.tres@vatican.city
+        type: string
+      ownedFiles:
+        example:
+        - rower
+        - pies
+        - zachrystia
+        items:
+          type: string
+        type: array
+      passwordHash:
+        example: Papiezowki
+        type: string
+      passwordSalt:
+        example: Pozdrawiam_Polakow
+        type: string
+      sharedFiles:
+        example:
+        - zaba
+        - cialo_chrystusa
+        items:
+          type: string
+        type: array
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        example: "2024-12-11T13:58:47.977Z"
+        type: string
+      email:
+        example: huan.pablo.dos@vatican.city
+        type: string
+      id:
+        example: 675f9a97ca1d148373316ae4
+        type: string
+      ownedFiles:
+        example:
+        - rower
+        - pies
+        items:
+          type: string
+        type: array
+      passwordHash:
+        example: Kremowki
+        type: string
+      passwordSalt:
+        example: Slony_Karmel
+        type: string
+      role:
+        example: admin
+        type: string
+      sharedFiles:
+        example:
+        - zaba
+        - slon
+        items:
+          type: string
+        type: array
+      username:
+        example: Karol_Wojtyla
+        type: string
+    type: object
 info:
   contact: {}
   description: Webserver serving a complete implementation of account managing API
@@ -9,14 +135,201 @@ info:
   title: Accounts API
   version: "0.1"
 paths:
-  /hello:
+  /accounts/:
     get:
-      description: Increment the counter and greet the user
+      description: Retrieve information about all existing accounts
       produces:
       - application/json
       responses:
         "200":
-          description: 'Example: Hello from ''accounts'' times 3!'
+          description: Every existing account
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Server could not retrieve or process the data
+          schema:
+            $ref: '#/definitions/models.HTTP500'
+      summary: Retrieve all account data
+      tags:
+      - accounts
+    post:
+      consumes:
+      - application/json
+      description: Create a User record in the database
+      parameters:
+      - description: Necessary account details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Register'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account created successfully
+          schema:
+            $ref: '#/definitions/models.HTTP200'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/models.HTTP400'
+        "500":
+          description: Server could not save the account
+          schema:
+            $ref: '#/definitions/models.HTTP500'
+      summary: Create an account
+      tags:
+      - accounts
+  /accounts/{user_id}:
+    delete:
+      description: Delete an account with given ID
+      parameters:
+      - description: ID of the user to delete
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account deleted successfully
+          schema:
+            $ref: '#/definitions/models.HTTP200'
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/models.HTTP400'
+        "404":
+          description: No user with given ID was found
+          schema:
+            $ref: '#/definitions/models.HTTP404'
+        "500":
+          description: Server could not delete the account
+          schema:
+            $ref: '#/definitions/models.HTTP500'
+      summary: Delete an account
+      tags:
+      - accounts
+    get:
+      description: Retrieve information about an account with given ID
+      parameters:
+      - description: ID of the user to retrieve
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account retrieved successfully
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/models.HTTP400'
+        "404":
+          description: No user with given ID was found
+          schema:
+            $ref: '#/definitions/models.HTTP404'
+      summary: Retrieve an account
+      tags:
+      - accounts
+    put:
+      consumes:
+      - application/json
+      description: Update an account with given ID
+      parameters:
+      - description: ID of the user to update
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Data to be updated (no need for all the fields)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Update'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account updated successfully
+          schema:
+            $ref: '#/definitions/models.HTTP200'
+        "400":
+          description: Invalid ID format or request body
+          schema:
+            $ref: '#/definitions/models.HTTP400'
+        "404":
+          description: No user with given ID was found
+          schema:
+            $ref: '#/definitions/models.HTTP404'
+        "500":
+          description: Server could not update the account
+          schema:
+            $ref: '#/definitions/models.HTTP500'
+      summary: Update an account
+      tags:
+      - accounts
+  /login/:
+    get:
+      consumes:
+      - application/json
+      description: Verify users password and return the User if it is correct (login
+        successful)
+      parameters:
+      - description: Users login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User credentials valid (login successful)
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid request body or password
+          schema:
+            $ref: '#/definitions/models.HTTP400'
+        "404":
+          description: No account with given username was found
+          schema:
+            $ref: '#/definitions/models.HTTP404'
+      summary: Verify users password
+      tags:
+      - login
+  /login/{username}:
+    get:
+      description: Get the password salt of the user with given username
+      parameters:
+      - description: Username of the account to retrieve the password salt for
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password salt retrieved successfully
+          schema:
+            $ref: '#/definitions/models.Salt'
+        "404":
+          description: No account with given username was found
+          schema:
+            $ref: '#/definitions/models.HTTP404'
+      summary: Get the user's password salt
+      tags:
+      - login
 swagger: "2.0"

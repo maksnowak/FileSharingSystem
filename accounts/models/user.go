@@ -9,18 +9,18 @@ import (
 //
 // A structure representing MongoDB User structure
 type User struct {
-	ID           bson.ObjectID `bson:"_id,omitempty" json:"id"`
-	Username     string        `bson:"username" json:"username"`
-	Email        string        `bson:"email" json:"email"`
-	PasswordHash string        `bson:"passwordHash" json:"passwordHash"`
-	PasswordSalt string        `bson:"passwordSalt" json:"passwordSalt"`
-	CreatedAt    time.Time     `bson:"createdAt" json:"createdAt"`
-	Role         string        `bson:"role" json:"role"`
-	OwnedFiles   []string      `bson:"ownedFiles" json:"ownedFiles"`
-	SharedFiles  []string      `bson:"sharedFiles" json:"sharedFiles"`
+	ID           bson.ObjectID `bson:"_id,omitempty" json:"id" example:"675f9a97ca1d148373316ae4"`
+	Username     string        `bson:"username" json:"username" example:"Karol_Wojtyla"`
+	Email        string        `bson:"email" json:"email" example:"huan.pablo.dos@vatican.city"`
+	PasswordHash string        `bson:"passwordHash" json:"passwordHash" example:"Kremowki"`
+	PasswordSalt string        `bson:"passwordSalt" json:"passwordSalt" example:"Slony_Karmel"`
+	CreatedAt    time.Time     `bson:"createdAt" json:"createdAt" example:"2024-12-11T13:58:47.977Z"`
+	Role         string        `bson:"role" json:"role" example:"admin"`
+	OwnedFiles   []string      `bson:"ownedFiles" json:"ownedFiles" example:"rower,pies"`
+	SharedFiles  []string      `bson:"sharedFiles" json:"sharedFiles" example:"zaba,slon"`
 }
 
 type Credentials struct {
-	Username     string `bson:"username" json:"username"`
-	PasswordHash string `bson:"passwordHash" json:"passwordHash"`
+	Username     string `bson:"username" json:"username" example:"Jon_Bon_Jovi"`
+	PasswordHash string `bson:"passwordHash" json:"passwordHash" example:"ZbazowaneDane123"`
 }

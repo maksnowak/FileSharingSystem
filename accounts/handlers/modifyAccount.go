@@ -10,6 +10,20 @@ import (
 	"net/http"
 )
 
+// UpdateAccount 	godoc
+//
+//	@Summary		Update an account
+//	@Description	Update an account with given ID
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	path		string			true	"ID of the user to update"
+//	@Param			request	body		models.Update	true "Data to be updated (no need for all the fields)"
+//	@Success		200		{object}	models.HTTP200	"Account updated successfully"
+//	@Failure		400		{object}	models.HTTP400	"Invalid ID format or request body"
+//	@Failure		404		{object}	models.HTTP404	"No user with given ID was found"
+//	@Failure		500		{object}	models.HTTP500	"Server could not update the account"
+//	@Router			/accounts/{user_id} [put]
 func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	ID := chi.URLParam(r, "user_id")
 
@@ -52,6 +66,18 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]string{"message": "Account updated successfully"})
 }
 
+// DeleteAccount 	godoc
+//
+//	@Summary		Delete an account
+//	@Description	Delete an account with given ID
+//	@Tags			accounts
+//	@Produce		json
+//	@Param			user_id	path		string			true	"ID of the user to delete"
+//	@Success		200		{object}	models.HTTP200	"Account deleted successfully"
+//	@Failure		400		{object}	models.HTTP400	"Invalid ID format"
+//	@Failure		404		{object}	models.HTTP404	"No user with given ID was found"
+//	@Failure		500		{object}	models.HTTP500	"Server could not delete the account"
+//	@Router			/accounts/{user_id} [delete]
 func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	ID := chi.URLParam(r, "user_id")
 
@@ -79,5 +105,5 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Account deleted successfully"})
+	_ = json.NewEncoder(w).Encode(map[string]string{"message": "Account deleted successfully"})
 }

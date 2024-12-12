@@ -13,6 +13,18 @@ import (
 	"time"
 )
 
+// RegisterHandler 	godoc
+//
+//	@Summary		Create an account
+//	@Description	Create a User record in the database
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.Register	true	"Necessary account details"
+//	@Success		200		{object}	models.HTTP200	"Account created successfully"
+//	@Failure		400		{object}	models.HTTP400	"Invalid request body"
+//	@Failure		500		{object}	models.HTTP500	"Server could not save the account"
+//	@Router			/accounts/ [post]
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// reading request
 	var user models.User

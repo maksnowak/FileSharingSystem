@@ -19,19 +19,480 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/hello": {
+        "/accounts/": {
             "get": {
-                "description": "Increment the counter and greet the user",
+                "description": "Retrieve information about all existing accounts",
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Retrieve all account data",
                 "responses": {
                     "200": {
-                        "description": "Example: Hello from 'accounts' times 3!",
+                        "description": "Every existing account",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server could not retrieve or process the data",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP500"
                         }
                     }
+                }
+            },
+            "post": {
+                "description": "Create a User record in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Create an account",
+                "parameters": [
+                    {
+                        "description": "Necessary account details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Register"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP200"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP400"
+                        }
+                    },
+                    "500": {
+                        "description": "Server could not save the account",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP500"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{user_id}": {
+            "get": {
+                "description": "Retrieve information about an account with given ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Retrieve an account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the user to retrieve",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP400"
+                        }
+                    },
+                    "404": {
+                        "description": "No user with given ID was found",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP404"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an account with given ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Update an account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the user to update",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data to be updated (no need for all the fields)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Update"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP200"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format or request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP400"
+                        }
+                    },
+                    "404": {
+                        "description": "No user with given ID was found",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP404"
+                        }
+                    },
+                    "500": {
+                        "description": "Server could not update the account",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP500"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an account with given ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Delete an account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the user to delete",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP200"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP400"
+                        }
+                    },
+                    "404": {
+                        "description": "No user with given ID was found",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP404"
+                        }
+                    },
+                    "500": {
+                        "description": "Server could not delete the account",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP500"
+                        }
+                    }
+                }
+            }
+        },
+        "/login/": {
+            "get": {
+                "description": "Verify users password and return the User if it is correct (login successful)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "login"
+                ],
+                "summary": "Verify users password",
+                "parameters": [
+                    {
+                        "description": "Users login credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Credentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User credentials valid (login successful)",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or password",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP400"
+                        }
+                    },
+                    "404": {
+                        "description": "No account with given username was found",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP404"
+                        }
+                    }
+                }
+            }
+        },
+        "/login/{username}": {
+            "get": {
+                "description": "Get the password salt of the user with given username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "login"
+                ],
+                "summary": "Get the user's password salt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username of the account to retrieve the password salt for",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password salt retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.Salt"
+                        }
+                    },
+                    "404": {
+                        "description": "No account with given username was found",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTP404"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Credentials": {
+            "type": "object",
+            "properties": {
+                "passwordHash": {
+                    "type": "string",
+                    "example": "ZbazowaneDane123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Jon_Bon_Jovi"
+                }
+            }
+        },
+        "models.HTTP200": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Operation successful"
+                }
+            }
+        },
+        "models.HTTP400": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Invalid request body"
+                }
+            }
+        },
+        "models.HTTP404": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Could not find requested data"
+                }
+            }
+        },
+        "models.HTTP500": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Error while processing request"
+                }
+            }
+        },
+        "models.Register": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "huan.pablo.dos@vatican.city"
+                },
+                "passwordHash": {
+                    "type": "string",
+                    "example": "Kremowki"
+                },
+                "passwordSalt": {
+                    "type": "string",
+                    "example": "Slony_Karmel"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "admin"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Karol_Wojtyla"
+                }
+            }
+        },
+        "models.Salt": {
+            "type": "object",
+            "properties": {
+                "passwordSalt": {
+                    "type": "string",
+                    "example": "Slony_Karmel"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Karol_Wojtyla"
+                }
+            }
+        },
+        "models.Update": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "huan.pablo.tres@vatican.city"
+                },
+                "ownedFiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "rower",
+                        "pies",
+                        "zachrystia"
+                    ]
+                },
+                "passwordHash": {
+                    "type": "string",
+                    "example": "Papiezowki"
+                },
+                "passwordSalt": {
+                    "type": "string",
+                    "example": "Pozdrawiam_Polakow"
+                },
+                "sharedFiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "zaba",
+                        "cialo_chrystusa"
+                    ]
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string",
+                    "example": "2024-12-11T13:58:47.977Z"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "huan.pablo.dos@vatican.city"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "675f9a97ca1d148373316ae4"
+                },
+                "ownedFiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "rower",
+                        "pies"
+                    ]
+                },
+                "passwordHash": {
+                    "type": "string",
+                    "example": "Kremowki"
+                },
+                "passwordSalt": {
+                    "type": "string",
+                    "example": "Slony_Karmel"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "admin"
+                },
+                "sharedFiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "zaba",
+                        "slon"
+                    ]
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Karol_Wojtyla"
                 }
             }
         }
