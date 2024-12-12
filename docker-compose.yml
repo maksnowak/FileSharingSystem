@@ -5,13 +5,13 @@ services:
     image: file-encryption:0.1
     env_file: .env
     volumes:
-      - ./path/to/your/env:/app/.env
+      - .env
   file-transfer:
     build: file-transfer
     container_name: file-transfer
     image: file-transfer:0.1
     volumes:
-      - ./path/to/your/env:/app/.env
+      - .env
   accounts:
     build: accounts
     container_name: accounts
@@ -21,7 +21,7 @@ services:
     environment:
       - APP_ENV=prod
     volumes:
-      - ./path/to/your/env:/app/.env
+      - .env
   frontend:
     build: frontend
     container_name: frontend
@@ -29,4 +29,4 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./path/to/your/env:/app/.env
+      - .env
