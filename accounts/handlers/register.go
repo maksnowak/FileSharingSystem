@@ -26,22 +26,22 @@ import (
 //	@Router			/accounts/ [post]
 func Register(w http.ResponseWriter, r *http.Request) {
 	// reading request
-	var user models.User
+	var reg models.Register
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&user)
+	err := decoder.Decode(&reg)
 	if err != nil {
 		http.Error(w, "Invalid body", http.StatusBadRequest)
 		return
 	}
 
 	// checking if any required fields are missing
-	if user.Username == "" || user.Email == "" || user.PasswordHash == "" || user.PasswordSalt == "" || user.Role == "" {
+	if reg.Username == "" || reg.Email == "" || reg.PasswordHash == "" || reg.PasswordSalt == "" || reg.Role == "" {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
 
 	// check if role is valid
-	if user.Role != "user" && user.Role != "admin" {
+	if reg.Role != "user" && reg.Role != "admin" {
 		http.Error(w, "Wrong role", http.StatusBadRequest)
 		return
 	}
@@ -50,22 +50,29 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	// check if username or email is already taken
 	var existingUser models.User
-	err = collection.FindOne(context.Background(), bson.M{"username": user.Username}).Decode(&existingUser)
+	err = collection.FindOne(context.Background(), bson.M{"username": reg.Username}).Decode(&existingUser)
 	if !errors.Is(err, mongo.ErrNoDocuments) {
 		http.Error(w, "Username taken", http.StatusBadRequest)
 		return
 	}
 
-	err = collection.FindOne(context.Background(), bson.M{"email": user.Email}).Decode(&existingUser)
+	err = collection.FindOne(context.Background(), bson.M{"email": reg.Email}).Decode(&existingUser)
 	if !errors.Is(err, mongo.ErrNoDocuments) {
 		http.Error(w, "Email taken", http.StatusBadRequest)
 		return
 	}
 
 	// everything ok, inserting user
-	user.CreatedAt = time.Now()
-	user.OwnedFiles = []string{}
-	user.SharedFiles = []string{}
+	user := models.User{
+		Username:     reg.Username,
+		Email:        reg.Email,
+		PasswordHash: reg.PasswordHash,
+		PasswordSalt: reg.PasswordSalt,
+		Role:         reg.Role,
+		CreatedAt:    time.Now(),
+		OwnedFiles:   []string{},
+		SharedFiles:  []string{},
+	}
 	_, err = collection.InsertOne(context.Background(), user)
 	if err != nil {
 		http.Error(w, "Error saving the user account in database", http.StatusInternalServerError)
