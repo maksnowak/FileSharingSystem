@@ -1,0 +1,24 @@
+parameters:
+  appName: ""
+  port: ""
+
+jobs:
+  - job: SSH_and_Deploy
+    displayName: SSH to VM and Deploy
+    steps:
+      - task: InstallSSHKey@0
+        inputs:
+          hostName: $(SSH_HOST)
+          sshKeySecureFile: "pisVMkey.pem"
+
+      - script: |
+          ssh -o StrictHostKeyChecking=no $(SSH_USER)@$(SSH_HOST) << 'EOF'
+            echo "SSH Connection Established"
+            docker pull $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
+            docker run -d -p ${{ parameters.port }} $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
+          EOF
+        displayName: SSH into VM and run Docker image
+        env:
+          SSH_HOST: $(SSH_HOST)
+          SSH_USER: $(SSH_USER)
+          dockerRegistry: $(dockerRegistry)
