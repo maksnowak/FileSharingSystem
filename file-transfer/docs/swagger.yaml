@@ -1,0 +1,49 @@
+basePath: /
+definitions:
+  models.File:
+    properties:
+      data:
+        items:
+          type: integer
+        type: array
+      file_name:
+        type: string
+      has_access:
+        description: List of user IDs
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Webserver providing saving and retrieval of files from MongoDB
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  title: File transfer API
+  version: "0.2"
+paths:
+  /files:
+    get:
+      description: Retrieve information about all existing files
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Every existing file
+          schema:
+            items:
+              $ref: '#/definitions/models.File'
+            type: array
+      summary: Retrieve all files
+      tags:
+      - files
+swagger: "2.0"
