@@ -14,11 +14,13 @@ jobs:
       - script: |
           ssh -o StrictHostKeyChecking=no $(SSH_USER)@$(SSH_HOST) << 'EOF'
             echo "SSH Connection Established"
+            echo "MONGODB_URI=$(MONGODB_URI)" > .env
             docker pull $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
-            docker run -d -p ${{ parameters.port }} $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
+            docker run --env-file .env -d -p ${{ parameters.port }} $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
           EOF
         displayName: SSH into VM and run Docker image
         env:
           SSH_HOST: $(SSH_HOST)
           SSH_USER: $(SSH_USER)
+          MONGODB_URI: $(MONGODB_URI)
           dockerRegistry: $(dockerRegistry)

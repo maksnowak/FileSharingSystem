@@ -27,9 +27,11 @@ services:
       - "2024:2024"
     environment:
       - APP_ENV=prod
+    env_file: .env
   frontend:
     build: frontend
     container_name: frontend
     image: frontend:0.1
     ports:
       - "80:80"
+    env_file: .env
