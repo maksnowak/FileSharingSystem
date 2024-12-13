@@ -43,10 +43,7 @@ func main() {
 			r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(addr+"doc.json")))
 			logger.Printf("Swagger UI available at %v\n", addr+"index.html")
 		}
-		//r.Get("/hello", Hello)
 	}
-
-	// A good base middleware stack
 
 	r.Route("/accounts", func(r chi.Router) {
 		r.Post("/", handlers.Register)                 // POST register account
@@ -71,6 +68,7 @@ func main() {
 
 	// DB USAGE
 	db.Connect()
+	defer db.Disconnect()
 
 	// graceful shutdown
 	stop := make(chan os.Signal, 1)
@@ -80,7 +78,6 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	db.Disconnect()
 	if err := serv.Shutdown(ctx); err != nil {
 		panic(err)
 	}
