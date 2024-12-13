@@ -72,6 +72,26 @@ func (a *App) getFile(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, f)
 }
 
+// getAllFiles	godoc
+//
+//	@Summary		Retrieve all files
+//	@Description	Retrieve information about all existing files
+//	@Tags			files
+//	@Produce		json
+//	@Success		200	{array}		models.File		"Every existing file"
+// @Failure      500      {string}  string       "Internal server error"
+//	@Router			/files [get]
+func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
+	ctx := context.TODO()
+	files, err := db.GetAllFiles(&ctx, a.MongoCollection)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusCreated, files)
+}
+
 // updateFile godoc
 //
 // @Summary      Update an existing file
