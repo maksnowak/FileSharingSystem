@@ -22,7 +22,7 @@ func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := db.createFile(&ctx, a.MongoCollection, f); err != nil {
+	if err := db.CreateFile(&ctx, a.MongoCollection, f); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -40,7 +40,7 @@ func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 //	@Router			/files [get]
 func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
-	files, err := db.getAllFiles(&ctx, a.MongoCollection)
+	files, err := db.GetAllFiles(&ctx, a.MongoCollection)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -59,7 +59,8 @@ func (a *App) getFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := models.File{FileID: id}
-	if err := getFile(&ctx, a.MongoCollection, f); err != nil {
+	f, err = db.GetFile(&ctx, a.MongoCollection, f)
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -84,7 +85,7 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := updateFile(&ctx, a.MongoCollection, f); err != nil {
+	if err := db.UpdateFile(&ctx, a.MongoCollection, f); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -102,7 +103,7 @@ func (a *App) deleteFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := models.File{FileID: id}
-	if err := deleteFile(&ctx, a.MongoCollection, f); err != nil {
+	if err := db.DeleteFile(&ctx, a.MongoCollection, f); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

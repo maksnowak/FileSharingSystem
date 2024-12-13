@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func createFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {
+func CreateFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {
 	_, err := collection.InsertOne(*ctx, f)
 	if err != nil {
 		return err
@@ -18,7 +18,7 @@ func createFile(ctx *context.Context, collection *mongo.Collection, f models.Fil
 	return nil
 }
 
-func getAllFiles(ctx *context.Context, collection *mongo.Collection) ([]models.File, error) {
+func GetAllFiles(ctx *context.Context, collection *mongo.Collection) ([]models.File, error) {
 	var files []models.File
 	cursor, err := collection.Find(*ctx, nil)
 	if err != nil {
@@ -33,7 +33,7 @@ func getAllFiles(ctx *context.Context, collection *mongo.Collection) ([]models.F
 	return files, nil
 }
 
-func getFile(ctx *context.Context, collection *mongo.Collection, f models.File) (models.File, error) {
+func GetFile(ctx *context.Context, collection *mongo.Collection, f models.File) (models.File, error) {
 	err := collection.FindOne(*ctx, f).Decode(f)
 	if err != nil {
 		return f, err
@@ -42,7 +42,7 @@ func getFile(ctx *context.Context, collection *mongo.Collection, f models.File) 
 	return f, nil
 }
 
-func updateFile(ctx *context.Context, collection *mongo.Collection, f File) error {
+func UpdateFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {
 	filter := bson.M{"_id": f.FileID}
 
 	update := bson.M{
@@ -63,7 +63,7 @@ func updateFile(ctx *context.Context, collection *mongo.Collection, f File) erro
 	return nil
 }
 
-func deleteFile(ctx *context.Context, collection *mongo.Collection, f File) error {
+func DeleteFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {
 	_, err := collection.DeleteOne(*ctx, f)
 	if err != nil {
 		return err
