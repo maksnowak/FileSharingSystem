@@ -1,7 +1,8 @@
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Println("Hello, file transfer microservice!")
+	a := App{}
+	a.Initialize()
+
+	a.Run(":8080")
 }
