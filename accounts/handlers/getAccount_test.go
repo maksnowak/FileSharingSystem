@@ -12,7 +12,6 @@ import (
 )
 
 var all Handler = GetAllAccounts
-var one Handler = GetAccountByID
 
 func TestGetAllAccountsEmpty(t *testing.T) {
 	rec := Call(nil, http.MethodGet, "/accounts", all, nil)
