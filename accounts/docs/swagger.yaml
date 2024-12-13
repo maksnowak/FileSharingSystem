@@ -17,19 +17,19 @@ definitions:
     type: object
   models.HTTP400:
     properties:
-      message:
+      <plain string>:
         example: Invalid request body
         type: string
     type: object
   models.HTTP404:
     properties:
-      message:
+      <plain string>:
         example: Could not find requested data
         type: string
     type: object
   models.HTTP500:
     properties:
-      message:
+      <plain string>:
         example: Error while processing request
         type: string
     type: object

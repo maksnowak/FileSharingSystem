@@ -7,13 +7,13 @@ type HTTP200 struct {
 }
 
 type HTTP400 struct {
-	Message string `json:"message" example:"Invalid request body"`
+	Message string `json:"<plain string>" example:"Invalid request body"`
 }
 
 type HTTP404 struct {
-	Message string `json:"message" example:"Could not find requested data"`
+	Message string `json:"<plain string>" example:"Could not find requested data"`
 }
 
 type HTTP500 struct {
-	Message string `json:"message" example:"Error while processing request"`
+	Message string `json:"<plain string>" example:"Error while processing request"`
 }

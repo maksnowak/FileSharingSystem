@@ -336,7 +336,7 @@
         "models.HTTP400": {
             "type": "object",
             "properties": {
-                "message": {
+                "\u003cplain string\u003e": {
                     "type": "string",
                     "example": "Invalid request body"
                 }
@@ -345,7 +345,7 @@
         "models.HTTP404": {
             "type": "object",
             "properties": {
-                "message": {
+                "\u003cplain string\u003e": {
                     "type": "string",
                     "example": "Could not find requested data"
                 }
@@ -354,7 +354,7 @@
         "models.HTTP500": {
             "type": "object",
             "properties": {
-                "message": {
+                "\u003cplain string\u003e": {
                     "type": "string",
                     "example": "Error while processing request"
                 }

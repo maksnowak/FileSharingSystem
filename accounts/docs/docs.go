@@ -343,7 +343,7 @@ const docTemplate = `{
         "models.HTTP400": {
             "type": "object",
             "properties": {
-                "message": {
+                "\u003cplain string\u003e": {
                     "type": "string",
                     "example": "Invalid request body"
                 }
@@ -352,7 +352,7 @@ const docTemplate = `{
         "models.HTTP404": {
             "type": "object",
             "properties": {
-                "message": {
+                "\u003cplain string\u003e": {
                     "type": "string",
                     "example": "Could not find requested data"
                 }
@@ -361,7 +361,7 @@ const docTemplate = `{
         "models.HTTP500": {
             "type": "object",
             "properties": {
-                "message": {
+                "\u003cplain string\u003e": {
                     "type": "string",
                     "example": "Error while processing request"
                 }
