@@ -323,11 +323,11 @@ const docTemplate = `{
             "properties": {
                 "passwordHash": {
                     "type": "string",
-                    "example": "ZbazowaneDane123"
+                    "example": "29a52d8ceb75e13713b42509ca3f203372d0cc68bcd797f49538d1ee244d0270"
                 },
                 "username": {
                     "type": "string",
-                    "example": "Jon_Bon_Jovi"
+                    "example": "NissanSkyline"
                 }
             }
         },
@@ -372,15 +372,15 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string",
-                    "example": "huan.pablo.dos@vatican.city"
+                    "example": "1.9TDI@germany.gov"
                 },
                 "passwordHash": {
                     "type": "string",
-                    "example": "Kremowki"
+                    "example": "2b2961a431b23c9007efe270c1d7eb79c19d4192d7cd2d924176eb0b19e7d2a1"
                 },
                 "passwordSalt": {
                     "type": "string",
-                    "example": "Slony_Karmel"
+                    "example": "720f6ac947ab8e448c3a7bb9109e62b72d79a388cb8e05469a6188d76b2e02b3"
                 },
                 "role": {
                     "type": "string",
@@ -388,7 +388,7 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string",
-                    "example": "Karol_Wojtyla"
+                    "example": "VolkswagenPassatB5"
                 }
             }
         },
@@ -397,11 +397,11 @@ const docTemplate = `{
             "properties": {
                 "passwordSalt": {
                     "type": "string",
-                    "example": "Slony_Karmel"
+                    "example": "8cf2283ad6ef0a3266059b418a73f8479338233ea2c4bcd3c1f51c39f13ae7dc"
                 },
                 "username": {
                     "type": "string",
-                    "example": "Karol_Wojtyla"
+                    "example": "ToyotaCorolla"
                 }
             }
         },
@@ -410,7 +410,7 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string",
-                    "example": "huan.pablo.tres@vatican.city"
+                    "example": "2.5V6TDI@germany.gov"
                 },
                 "ownedFiles": {
                     "type": "array",
@@ -418,18 +418,18 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "rower",
-                        "pies",
-                        "zachrystia"
+                        "6740a84ebda333c3ff62b0fb",
+                        "18727a085b5ff06008027b11",
+                        "bac300aba05c5d3610fcd03b"
                     ]
                 },
                 "passwordHash": {
                     "type": "string",
-                    "example": "Papiezowki"
+                    "example": "15c22c39b6d979a8da5b6185d70a7937630319288cc39fd74a3f705c397281a2"
                 },
                 "passwordSalt": {
                     "type": "string",
-                    "example": "Pozdrawiam_Polakow"
+                    "example": "3246e8fa9472a7c958f3afd81a50acb042ddef9f1558ff3d0ccd4771309aca1f"
                 },
                 "sharedFiles": {
                     "type": "array",
@@ -437,8 +437,7 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "zaba",
-                        "cialo_chrystusa"
+                        "ef4dc590d2d1356ca4137598"
                     ]
                 }
             }
@@ -452,7 +451,7 @@ const docTemplate = `{
                 },
                 "email": {
                     "type": "string",
-                    "example": "huan.pablo.dos@vatican.city"
+                    "example": "suzuki.swift@my.beloved"
                 },
                 "id": {
                     "type": "string",
@@ -464,17 +463,17 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "rower",
-                        "pies"
+                        "6740a84ebda333c3ff62b0fb",
+                        "18727a085b5ff06008027b11"
                     ]
                 },
                 "passwordHash": {
                     "type": "string",
-                    "example": "Kremowki"
+                    "example": "f1881511920da79a65164eec5f99b18fd45a4e117b9bcedebe01364899c48d54"
                 },
                 "passwordSalt": {
                     "type": "string",
-                    "example": "Slony_Karmel"
+                    "example": "8aa02738f5b472d7c0c4293473ff968cdddd14718be579d8f4ebd792e0f81ef7"
                 },
                 "role": {
                     "type": "string",
@@ -486,13 +485,13 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "zaba",
-                        "slon"
+                        "ef4dc590d2d1356ca4137598",
+                        "cef1ee14b343dbae4d77020c"
                     ]
                 },
                 "username": {
                     "type": "string",
-                    "example": "Karol_Wojtyla"
+                    "example": "SuzukiSwift"
                 }
             }
         }
