@@ -24,7 +24,7 @@ func Connect() {
 	defer cancel()
 
 	// open connection
-	err := godotenv.Load("../.env")
+	err := godotenv.Load("./.env")
 	if err != nil {
 		panic(err)
 	}
