@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"file-transfer/db"
 	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -18,26 +18,37 @@ type App struct {
 }
 
 func (a *App) Initialize() {
-	ctx := context.TODO()
-
 	a.Router = mux.NewRouter()
-	a.MongoCollection, a.MongoClient = initMongo(&ctx)
 	a.initRoutes()
 }
 
-func (a *App) Run(addr string) {
-	http.Handle("/", a.Router)
-	err := http.ListenAndServe(addr, a.Router)
-	if err != nil {
-		panic(fmt.Sprintf("Could not start server: %s", err))
-	}
+//	@title			File transfer API
+//	@version		0.2
+//	@description	Webserver providing saving and retrieval of files from MongoDB
+
+//	@license.name	MIT
+//	@license.url	https://opensource.org/license/mit
+
+// @BasePath	/
+func (a *App) Run(ctx *context.Context, addr string) {
+	serv := &http.Server{Addr: addr, Handler: a.Router}
+
+	go func() {
+		fmt.Printf("http: Listening on %v\n", addr)
+		if err := serv.ListenAndServe(); err != nil {
+			fmt.Print(err)
+		}
+	}()
+
+	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
 }
 
-func (a *App) Close() {
-	ctx := context.TODO()
+func (a *App) Close(ctx context.Context) error {
 	if err := a.MongoClient.Disconnect(ctx); err != nil {
-		panic(fmt.Sprintf("Could not close connection: %s", err))
+		return err
 	}
+
+	return nil
 }
 
 func (a *App) healthCheck(w http.ResponseWriter, r *http.Request) {
