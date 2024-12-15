@@ -23,7 +23,6 @@ import (
 func main() {
 	port := flag.String("port", "8080", "Port to listen on.")
 	flag.Parse()
-
 	a := app.App{}
 	a.Initialize()
 
