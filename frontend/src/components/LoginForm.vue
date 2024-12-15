@@ -1,11 +1,57 @@
+//TODO: Add basic input validation
+//FIXME: Not entering anything in the input fields throws errors in the console
+
+
 <script setup lang="ts">
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms';
 import { InputText, Message, Button } from 'primevue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+import Toast from 'primevue/toast';
+const router = useRouter();
+const toast = useToast();
+const onFormSubmit = async (event: FormSubmitEvent) => {
+    let username = event.states.username.value;
+    let password = event.states.password.value;
+    await login(username, password, router, toast);
+};
+const getSalt = async (username: string) => {
+    let response = await fetch(`http://localhost:2024/login/${username}`);
+    let data = await response.json();
+    return data.passwordSalt;
+};
+const hashPassword = async (password: string, salt: string) => {
+    let saltedPassword = password + salt;
+    let hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(saltedPassword));
+    let hashedPassword = Array.prototype.map.call(new Uint8Array(hashBuffer), x=>(('00'+x.toString(16)).slice(-2))).join('');
+    return hashedPassword;
+}
+const login = async (username: string, password: string, router: any, toast: any) => {
+    let salt = await getSalt(username);
+    let hashedPassword = await hashPassword(password, salt);
+    let response = await fetch(`http://localhost:2024/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            passwordHash: hashedPassword,
+            username: username,
+        })
+    });
+    if ((await response).status === 200) {
+        console.log('Logged in');
+        router.push('/home');
+    } else {
+        console.log('Login failed');
+        toast.add({severity: 'error', summary: 'Login failed', life: 3000});
+    }
+};
 </script>
 
 <template>
     <main class="login-component">
+        <Toast />
         <h1 class="vertical-padding">Log in</h1>
         <Form @submit="onFormSubmit">
             <FormField v-slot="$username" name="username" class="vertical-padding">
@@ -20,48 +66,6 @@ import { useRouter } from 'vue-router';
         </Form>
     </main>
 </template>
-
-<script lang="ts">
-const router = useRouter();
-const onFormSubmit = (event: FormSubmitEvent) => {
-    let username = event.states.username.value;
-    let password = event.states.password.value;
-    login(username, password);
-};
-const getSalt = async (username: string) => {
-    let response = await fetch(`http://localhost:2024/login/${username}`);
-    let data = await response.json();
-    return data.passwordSalt;
-};
-const hashPassword = async (password: string, salt: string) => {
-    let saltedPassword = password + salt;
-    let hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(saltedPassword));
-    let hashedPassword = Array.prototype.map.call(new Uint8Array(hashBuffer), x=>(('00'+x.toString(16)).slice(-2))).join('');
-    return hashedPassword;
-}
-const login = async (username: string, password: string) => {
-    let salt = await getSalt(username);
-    let hashedPassword = hashPassword(password, salt);
-    //FIXME: Login endpoint should be POST, will be fixed after @Duszke333's PR
-    let response = await fetch(`http://localhost:2024/login`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            username: username,
-            passwordHash: hashedPassword
-        })
-    });
-    let data = await response.json();
-    if (data.success) {
-        console.log('Logged in');
-        router.push('/home');
-    } else {
-        console.log('Login failed');
-    }
-};
-</script>
 
 <style scoped>
 .vertical-padding {
