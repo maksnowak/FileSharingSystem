@@ -10,10 +10,9 @@ import LoginForm from '../components/LoginForm.vue'
 
 <style scoped>
 .login-page {
-  display: flex;
   justify-content: center;
-  text-align: center;
-  align-items: center;
+  margin: auto;
+  max-width: 1200px;
   height: 100vh;
 }
 </style>
