@@ -236,7 +236,7 @@ const docTemplate = `{
             }
         },
         "/login/": {
-            "get": {
+            "post": {
                 "description": "Verify users password and return the User if it is correct (login successful)",
                 "consumes": [
                     "application/json"

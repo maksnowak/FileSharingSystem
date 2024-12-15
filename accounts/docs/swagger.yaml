@@ -278,7 +278,7 @@ paths:
       tags:
       - accounts
   /login/:
-    get:
+    post:
       consumes:
       - application/json
       description: Verify users password and return the User if it is correct (login
