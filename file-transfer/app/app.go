@@ -3,8 +3,13 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	// "file-transfer/db"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,12 +18,19 @@ import (
 
 type App struct {
 	Router          *mux.Router
+	Server          *http.Server
+	Logger          *log.Logger
 	MongoClient     *mongo.Client
 	MongoCollection *mongo.Collection
 }
 
 func (a *App) Initialize() {
 	a.Router = mux.NewRouter()
+	a.Logger = log.New(os.Stdout, "server: ", log.Flags())
+
+	logMiddleware := NewLogMiddleware(a.Logger)
+	a.Router.Use(logMiddleware.Func())
+
 	a.initRoutes()
 	a.initDocs()
 }
@@ -32,14 +44,34 @@ func (a *App) Initialize() {
 
 // @BasePath	/
 func (a *App) Run(ctx *context.Context, addr string) {
-	serv := &http.Server{Addr: addr, Handler: a.Router}
+	a.Server = &http.Server{Addr: addr, Handler: a.Router}
+	// a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
 
-	fmt.Printf("http: Listening on %v\n", addr)
-	if err := serv.ListenAndServe(); err != nil {
-		fmt.Print(err)
+	done := make(chan bool)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-quit
+		a.Logger.Println("Server is shutting down...")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		a.Server.SetKeepAlivesEnabled(false)
+		if err := a.Server.Shutdown(ctx); err != nil {
+			a.Logger.Fatalf("Could not gracefully shutdown the server: %v\n", err)
+		}
+		close(done)
+	}()
+
+	a.Logger.Println("Server is ready to handle requests at :8080")
+	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		a.Logger.Fatalf("Could not listen on :8080: %v\n", err)
 	}
 
-	// a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
+	<-done
+	a.Logger.Println("Server stopped")
 }
 
 func (a *App) Close(ctx context.Context) error {
