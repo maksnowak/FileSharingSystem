@@ -17,12 +17,14 @@ This microservice is dependent on MongoDB database so before starting the web se
 
 ### Running MongoDB locally
 
-You can run MongoDB locally with `docker compose` by using `docker compose run mongodb` command in project _root_ directory.
+You can run MongoDB locally with `docker compose` by using `docker compose run mongodb` command in project _file-transfer_ directory.
 Then you need to create `.env` file with MongoDB configuration.
 Example configuration:
 
 ```bash
-MONGODB_URI=mongodb://
+MONGODB_URI=mongodb://localhost:27017/
+MONGODB_DB_USER=root
+MONGODB_DB_PASSWORD=example
 ```
 
 ### Connecting to existing instance
