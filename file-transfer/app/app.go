@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	// "file-transfer/db"
 	"net/http"
@@ -47,38 +44,27 @@ func (a *App) Run(ctx *context.Context, addr string) {
 	a.Server = &http.Server{Addr: addr, Handler: a.Router}
 	// a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
 
-	done := make(chan bool)
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		<-quit
-		a.Logger.Println("Server is shutting down...")
-
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-
-		a.Server.SetKeepAlivesEnabled(false)
-		if err := a.Server.Shutdown(ctx); err != nil {
-			a.Logger.Fatalf("Could not gracefully shutdown the server: %v\n", err)
-		}
-		close(done)
-	}()
-
 	a.Logger.Println("Server is ready to handle requests at :8080")
 	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		a.Logger.Fatalf("Could not listen on :8080: %v\n", err)
 	}
-
-	<-done
-	a.Logger.Println("Server stopped")
 }
 
 func (a *App) Close(ctx context.Context) error {
+	a.Logger.Println("Server is shutting down...")
+
+	a.Server.SetKeepAlivesEnabled(false)
+	if err := a.Server.Shutdown(ctx); err != nil {
+		a.Logger.Fatalf("Could not gracefully shutdown the server: %v\n", err)
+		return err
+	}
+
 	// if err := a.MongoClient.Disconnect(ctx); err != nil {
+	// 	a.Logger.Fatalf("Could not gracefully shutdown the MongoDB client: %v\n", err)
 	// 	return err
 	// }
 
+	a.Logger.Println("Server stopped")
 	return nil
 }
 
