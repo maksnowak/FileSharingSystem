@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   models.File:
     properties:
@@ -23,8 +24,32 @@ definitions:
     type: object
 info:
   contact: {}
+  description: Webserver providing saving and retrieval of files from MongoDB
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  title: File transfer API
+  version: "0.2"
 paths:
   /files:
+    get:
+      description: Retrieve information about all existing files
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Every existing file
+          schema:
+            items:
+              $ref: '#/definitions/models.File'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Retrieve all files
+      tags:
+      - files
     post:
       consumes:
       - application/json

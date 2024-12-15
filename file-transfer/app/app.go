@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	// "file-transfer/db"
+	"file-transfer/db"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -22,27 +22,18 @@ type App struct {
 }
 
 func (a *App) Initialize() {
-	a.Router = mux.NewRouter()
+	a.Router = mux.NewRouter().StrictSlash(true)
 	a.Logger = log.New(os.Stdout, "server: ", log.Flags())
 
 	logMiddleware := NewLogMiddleware(a.Logger)
 	a.Router.Use(logMiddleware.Func())
 
 	a.initRoutes()
-	a.initDocs()
 }
 
-//	@title			File transfer API
-//	@version		0.2
-//	@description	Webserver providing saving and retrieval of files from MongoDB
-
-//	@license.name	MIT
-//	@license.url	https://opensource.org/license/mit
-
-// @BasePath	/
 func (a *App) Run(ctx *context.Context, addr string) {
 	a.Server = &http.Server{Addr: addr, Handler: a.Router}
-	// a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
+	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
 
 	a.Logger.Println("Server is ready to handle requests at :8080")
 	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -59,10 +50,10 @@ func (a *App) Close(ctx context.Context) error {
 		return err
 	}
 
-	// if err := a.MongoClient.Disconnect(ctx); err != nil {
-	// 	a.Logger.Fatalf("Could not gracefully shutdown the MongoDB client: %v\n", err)
-	// 	return err
-	// }
+	if err := a.MongoClient.Disconnect(ctx); err != nil {
+		a.Logger.Fatalf("Could not gracefully shutdown the MongoDB client: %v\n", err)
+		return err
+	}
 
 	a.Logger.Println("Server stopped")
 	return nil

@@ -8,9 +8,18 @@ import (
 	"os/signal"
 	"syscall"
 
+	_ "file-transfer/docs"
 	"time"
 )
 
+//	@title			File transfer API
+//	@version		0.2
+//	@description	Webserver providing saving and retrieval of files from MongoDB
+
+//	@license.name	MIT
+//	@license.url	https://opensource.org/license/mit
+
+// @BasePath	/
 func main() {
 	port := flag.String("port", "8080", "Port to listen on.")
 	flag.Parse()
@@ -34,7 +43,7 @@ func main() {
 		close(done)
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	a.Run(&ctx, ":"+*port)

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	_ "file-transfer/docs"
 	"net/http"
 
 	"file-transfer/db"
