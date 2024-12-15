@@ -37,7 +37,7 @@ func GetPasswordSalt(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(salt)
 }
 
-// UpdateAccount 	godoc
+// Login		 	godoc
 //
 //	@Summary		Verify users password
 //	@Description	Verify users password and return the User if it is correct (login successful)
@@ -48,7 +48,7 @@ func GetPasswordSalt(w http.ResponseWriter, r *http.Request) {
 //	@Success		200		{object}	models.User			"User credentials valid (login successful)"
 //	@Failure		400		{object}	models.HTTP400		"Invalid request body or password"
 //	@Failure		404		{object}	models.HTTP404		"No account with given username was found"
-//	@Router			/login/ [get]
+//	@Router			/login/ [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	var credentials models.Credentials
 	decoder := json.NewDecoder(r.Body)
