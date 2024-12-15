@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import LoginForm from '../components/LoginForm.vue'
-import CreateAccountLink from '@/components/CreateAccountLink.vue';
+import CreateAccountForm from '@/components/CreateAccountForm.vue';
 </script>
 
 <template>
     <main class="login-page">
-        <LoginForm />
-        <CreateAccountLink />
+        <CreateAccountForm />
     </main>
 </template>
+
 
 <style scoped>
 .login-page {

@@ -1,64 +1,59 @@
+
 <script setup lang="ts">
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms';
 import { InputText, Message, Button } from 'primevue';
-import { useRouter } from 'vue-router';
 </script>
 
 <template>
-    <main class="login-component">
-        <h1 class="vertical-padding">Log in</h1>
+    <main class="register-component">
+        <h1 class="vertical-padding">Create an account</h1>
         <Form @submit="onFormSubmit">
             <FormField v-slot="$username" name="username" class="vertical-padding">
-                <InputText type="text" placeholder="Username" v-bind="$username.props" class="login-element"/>
+                <InputText type="text" placeholder="Username" v-bind="$username.props" class="register-element"/>
                 <Message v-if="$username.invalid" severity="error" size="small" variant="simple">{{ $username.error?.message }}</Message>
             </FormField> 
+            <FormField v-slot="$email" name="email" class="vertical-padding">
+                <InputText type="email" placeholder="Email" v-bind="$email.props" class="register-element"/>
+                <Message v-if="$email.invalid" severity="error" size="small" variant="simple">{{ $email.error?.message }}</Message>
+            </FormField>
             <FormField v-slot="$password" name="password" class="vertical-padding">
-                <InputText type="password" placeholder="Password" v-bind="$password.props" class="login-element"/>
+                <InputText type="password" placeholder="Password" v-bind="$password.props" class="register-element"/>
                 <Message v-if="$password.invalid" severity="error" size="small" variant="simple">{{ $password.error?.message }}</Message>
             </FormField>
-            <Button type="submit" label="Log in" class="login-element"/>
+            <Button type="submit" severity="secondary" label="Create account" class="register-element"/>
         </Form>
     </main>
 </template>
 
 <script lang="ts">
-const router = useRouter();
 const onFormSubmit = (event: FormSubmitEvent) => {
     let username = event.states.username.value;
+    let email = event.states.email.value;
     let password = event.states.password.value;
-    login(username, password);
+    createAccount(username, email, password);
 };
-const getSalt = async (username: string) => {
-    let response = await fetch(`http://localhost:2024/login/${username}`);
-    let data = await response.json();
-    return data.passwordSalt;
-};
-const hashPassword = async (password: string, salt: string) => {
-    let saltedPassword = password + salt;
+const createAccount = async (username: string, email: string, password: string) => {
+    let passwordSalt = Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), x=>(('00'+x.toString(16)).slice(-2))).join('');
+    let saltedPassword = password + passwordSalt;
     let hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(saltedPassword));
     let hashedPassword = Array.prototype.map.call(new Uint8Array(hashBuffer), x=>(('00'+x.toString(16)).slice(-2))).join('');
-    return hashedPassword;
-}
-const login = async (username: string, password: string) => {
-    let salt = await getSalt(username);
-    let hashedPassword = hashPassword(password, salt);
-    //FIXME: Login endpoint should be POST, will be fixed after @Duszke333's PR
-    let response = await fetch(`http://localhost:2024/login`, {
-        method: 'GET',
+    let response = fetch(`http://localhost:2024/accounts`, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+            email: email,
+            passwordHash: hashedPassword,
+            passwordSalt: passwordSalt,
+            role: "user",
             username: username,
-            passwordHash: hashedPassword
         })
     });
-    let data = await response.json();
-    if (data.success) {
-        console.log('Logged in');
-        router.push('/home');
+    if ((await response).status === 200) {
+        console.log('Account created');
     } else {
-        console.log('Login failed');
+        console.log('Account creation failed');
     }
 };
 </script>
@@ -68,10 +63,10 @@ const login = async (username: string, password: string) => {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
 }
-.login-element {
+.register-element {
     width: 100%;
 }
-.login-component {
+.register-component {
     text-align: center;
     margin: auto;
     width: 60vw;
