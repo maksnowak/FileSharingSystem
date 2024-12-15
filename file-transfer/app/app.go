@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"file-transfer/db"
+	// "file-transfer/db"
 	"fmt"
 	"net/http"
 
@@ -20,6 +20,7 @@ type App struct {
 func (a *App) Initialize() {
 	a.Router = mux.NewRouter()
 	a.initRoutes()
+	a.initDocs()
 }
 
 //	@title			File transfer API
@@ -33,20 +34,18 @@ func (a *App) Initialize() {
 func (a *App) Run(ctx *context.Context, addr string) {
 	serv := &http.Server{Addr: addr, Handler: a.Router}
 
-	go func() {
-		fmt.Printf("http: Listening on %v\n", addr)
-		if err := serv.ListenAndServe(); err != nil {
-			fmt.Print(err)
-		}
-	}()
+	fmt.Printf("http: Listening on %v\n", addr)
+	if err := serv.ListenAndServe(); err != nil {
+		fmt.Print(err)
+	}
 
-	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
+	// a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
 }
 
 func (a *App) Close(ctx context.Context) error {
-	if err := a.MongoClient.Disconnect(ctx); err != nil {
-		return err
-	}
+	// if err := a.MongoClient.Disconnect(ctx); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
