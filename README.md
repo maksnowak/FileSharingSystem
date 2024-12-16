@@ -60,7 +60,7 @@ docker compose up --build
     - zmiana miejsca w dysku
 - Użytkownik będzie w stanie tworzyć foldery w strukturze drzewiastej i umieszczać tam pliki
 - Użytkownik będzie w stanie szyfrować pliki/foldery hasłem
-- Użytkownik będzie w stanie zobaczyć własną ewidencję (ślad cyfrowego aktywności tzn. ile było pobrać, kiedy pobrał)
+- Użytkownik będzie w stanie zobaczyć własną ewidencję (ślad cyfrowego aktywności tzn. ile było pobrań, kiedy pobrał)
 - Użytkownik będzie w stanie wyeksportować stan swojego dysku (stan obejmuje strukturę dysku, zaszyfrowane pliki, tagi
   oraz kategorie)
 - Użytkownik będzie w stanie zaimportować stan dysku z pliku
