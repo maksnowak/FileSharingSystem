@@ -1,0 +1,171 @@
+basePath: /
+definitions:
+  models.File:
+    properties:
+      data:
+        items:
+          type: integer
+        type: array
+      file_name:
+        type: string
+      has_access:
+        description: List of user IDs
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Webserver providing saving and retrieval of files from MongoDB
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  title: File transfer API
+  version: "0.2"
+paths:
+  /files:
+    get:
+      description: Retrieve information about all existing files
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Every existing file
+          schema:
+            items:
+              $ref: '#/definitions/models.File'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Retrieve all files
+      tags:
+      - files
+    post:
+      consumes:
+      - application/json
+      description: Create a new file record in the database
+      parameters:
+      - description: File object to create
+        in: body
+        name: file
+        required: true
+        schema:
+          $ref: '#/definitions/models.File'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created file object
+          schema:
+            $ref: '#/definitions/models.File'
+        "400":
+          description: Invalid request payload
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new file
+      tags:
+      - files
+  /files/{file_id}:
+    delete:
+      description: Remove a file from the database by its ID
+      parameters:
+      - description: File ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Result: success'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid file ID
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Delete a specific file
+      tags:
+      - files
+    get:
+      description: Get information about a file by its ID
+      parameters:
+      - description: File ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved file object
+          schema:
+            $ref: '#/definitions/models.File'
+        "400":
+          description: Invalid file ID
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Retrieve a specific file
+      tags:
+      - files
+    put:
+      consumes:
+      - application/json
+      description: Update the details of an existing file by its ID
+      parameters:
+      - description: File ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      - description: File object with updated information
+        in: body
+        name: file
+        required: true
+        schema:
+          $ref: '#/definitions/models.File'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated file object
+          schema:
+            $ref: '#/definitions/models.File'
+        "400":
+          description: Invalid request payload or file ID
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update an existing file
+      tags:
+      - files
+swagger: "2.0"
