@@ -6,7 +6,7 @@ import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
 const router = useRouter();
 const toast = useToast();
-import { hashPassword } from "./password";
+import { hashPassword } from "@/utils/password";
 const onFormSubmit = async (event: FormSubmitEvent) => {
     let username = event.states.username.value;
     let password = event.states.password.value;

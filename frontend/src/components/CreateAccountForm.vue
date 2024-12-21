@@ -7,7 +7,7 @@ import { Form, FormField, type FormSubmitEvent } from '@primevue/forms';
 import { InputText, Message, Button } from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
-import { hashPassword } from "@/components/password";
+import { hashPassword } from "@/utils/password";
 const toast = useToast();
 const onFormSubmit = (event: FormSubmitEvent) => {
     let username = event.states.username.value;
