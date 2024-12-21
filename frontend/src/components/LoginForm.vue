@@ -1,7 +1,3 @@
-//TODO: Add basic input validation
-//FIXME: Not entering anything in the input fields throws errors in the console
-
-
 <script setup lang="ts">
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms';
 import { InputText, Message, Button } from 'primevue';
@@ -10,24 +6,32 @@ import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
 const router = useRouter();
 const toast = useToast();
+import { hashPassword } from "@/utils/password";
 const onFormSubmit = async (event: FormSubmitEvent) => {
     let username = event.states.username.value;
     let password = event.states.password.value;
+    if (!username || !password) {
+      console.log("Empty credentials");
+      toast.add({severity: 'error', summary: 'Credentials cannot be empty', life: 3000});
+      return;
+    }
     await login(username, password, router, toast);
 };
 const getSalt = async (username: string) => {
     let response = await fetch(`http://localhost:2024/login/${username}`);
+    if (response.status !== 200) { // User does not exist
+      console.log("Could not get salt");
+      toast.add({severity: 'error', summary: 'Login failed: ' + await (await response).text(), life: 3000});
+      return null;
+    }
     let data = await response.json();
     return data.passwordSalt;
 };
-const hashPassword = async (password: string, salt: string) => {
-    let saltedPassword = password + salt;
-    let hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(saltedPassword));
-    let hashedPassword = Array.prototype.map.call(new Uint8Array(hashBuffer), x=>(('00'+x.toString(16)).slice(-2))).join('');
-    return hashedPassword;
-}
 const login = async (username: string, password: string, router: any, toast: any) => {
     let salt = await getSalt(username);
+    if (!salt) {
+      return; // Wrong username, stop the process
+    }
     let hashedPassword = await hashPassword(password, salt);
     let response = await fetch(`http://localhost:2024/login`, {
         method: 'POST',
@@ -44,7 +48,7 @@ const login = async (username: string, password: string, router: any, toast: any
         router.push('/home');
     } else {
         console.log('Login failed');
-        toast.add({severity: 'error', summary: 'Login failed', life: 3000});
+      toast.add({severity: 'error', summary: 'Login failed: ' + await (await response).text(), life: 3000});
     }
 };
 </script>
@@ -57,7 +61,7 @@ const login = async (username: string, password: string, router: any, toast: any
             <FormField v-slot="$username" name="username" class="vertical-padding">
                 <InputText type="text" placeholder="Username" v-bind="$username.props" class="login-element"/>
                 <Message v-if="$username.invalid" severity="error" size="small" variant="simple">{{ $username.error?.message }}</Message>
-            </FormField> 
+            </FormField>
             <FormField v-slot="$password" name="password" class="vertical-padding">
                 <InputText type="password" placeholder="Password" v-bind="$password.props" class="login-element"/>
                 <Message v-if="$password.invalid" severity="error" size="small" variant="simple">{{ $password.error?.message }}</Message>

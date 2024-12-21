@@ -7,18 +7,22 @@ import { Form, FormField, type FormSubmitEvent } from '@primevue/forms';
 import { InputText, Message, Button } from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
+import { hashPassword } from "@/utils/password";
 const toast = useToast();
 const onFormSubmit = (event: FormSubmitEvent) => {
     let username = event.states.username.value;
     let email = event.states.email.value;
     let password = event.states.password.value;
+    if (!username || !email || !password) {
+      console.log("Empty fields");
+      toast.add({severity: 'error', summary: 'Credentials cannot be empty', life: 3000});
+      return;
+    }
     createAccount(username, email, password, toast);
 };
 const createAccount = async (username: string, email: string, password: string, toast: any) => {
     let passwordSalt = Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), x=>(('00'+x.toString(16)).slice(-2))).join('');
-    let saltedPassword = password + passwordSalt;
-    let hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(saltedPassword));
-    let hashedPassword = Array.prototype.map.call(new Uint8Array(hashBuffer), x=>(('00'+x.toString(16)).slice(-2))).join('');
+    let hashedPassword = hashPassword(password, passwordSalt);
     let response = fetch(`http://localhost:2024/accounts`, {
         method: 'POST',
         headers: {
@@ -37,7 +41,7 @@ const createAccount = async (username: string, email: string, password: string, 
         toast.add({severity: 'success', summary: 'Account created', life: 3000});
     } else {
         console.log('Account creation failed');
-        toast.add({severity: 'error', summary: 'Account creation failed', life: 3000});
+        toast.add({severity: 'error', summary: 'Account creation failed: ' + await (await response).text(), life: 3000});
     }
 };
 </script>
@@ -50,7 +54,7 @@ const createAccount = async (username: string, email: string, password: string, 
             <FormField v-slot="$username" name="username" class="vertical-padding">
                 <InputText type="text" placeholder="Username" v-bind="$username.props" class="register-element"/>
                 <Message v-if="$username.invalid" severity="error" size="small" variant="simple">{{ $username.error?.message }}</Message>
-            </FormField> 
+            </FormField>
             <FormField v-slot="$email" name="email" class="vertical-padding">
                 <InputText type="email" placeholder="Email" v-bind="$email.props" class="register-element"/>
                 <Message v-if="$email.invalid" severity="error" size="small" variant="simple">{{ $email.error?.message }}</Message>
