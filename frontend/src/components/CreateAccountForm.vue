@@ -1,7 +1,3 @@
-//TODO: Add basic input validation
-//FIXME: Not entering anything in the input fields throws errors in the console
-
-
 <script setup lang="ts">
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms';
 import { InputText, Message, Button } from 'primevue';
@@ -9,7 +5,6 @@ import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
 import { hashPassword } from "@/utils/password";
 import {useRouter} from "vue-router";
-import {createViteRuntime} from "vite";
 const router = useRouter();
 const toast = useToast();
 const onFormSubmit = (event: FormSubmitEvent) => {
