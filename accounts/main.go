@@ -10,11 +10,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
@@ -33,6 +35,12 @@ func main() {
 
 	logger := log.New(os.Stdout, "server: ", log.Flags())
 
+	err := godotenv.Load("./.env")
+	if err != nil {
+		panic(err)
+	}
+	log.Println(strings.Split(os.Getenv("CORS"), ","))
+
 	r := chi.NewRouter()
 	{
 		r.Use(middleware.RequestID)
@@ -40,7 +48,7 @@ func main() {
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)
 		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"https://*", "http://*"},
+			AllowedOrigins:   strings.Split(os.Getenv("CORS"), ","),
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 			ExposedHeaders:   []string{"Link"},
