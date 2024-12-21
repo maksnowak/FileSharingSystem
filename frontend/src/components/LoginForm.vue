@@ -7,6 +7,7 @@ import Toast from 'primevue/toast';
 const router = useRouter();
 const toast = useToast();
 import { hashPassword } from "@/utils/password";
+import {userStore} from "@/user";
 const onFormSubmit = async (event: FormSubmitEvent) => {
     let username = event.states.username.value;
     let password = event.states.password.value;
@@ -44,6 +45,7 @@ const login = async (username: string, password: string, router: any, toast: any
         })
     });
     if ((await response).status === 200) {
+        await userStore().setUser(response.json());
         console.log('Logged in');
         router.push('/home');
     } else {
