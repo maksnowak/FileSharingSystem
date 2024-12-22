@@ -8,8 +8,11 @@ services:
   file-encryption:
     build: file-encryption
     container_name: file-encryption
-    image: file-encryption:0.1
-    env_file: .env
+    image: file-encryption:0.2
+    ports:
+      - "7780:7780"
+    environment:
+      - APP_ENV=prod
   file-transfer:
     depends_on:
       - mongodb

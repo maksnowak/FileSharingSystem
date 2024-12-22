@@ -2,38 +2,65 @@ package main
 
 import (
 	"context"
+	_ "file-encryption/docs"
+	"file-encryption/handler"
+	"flag"
 	"fmt"
-	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
 	"time"
 )
 
-func main() {
-	_ = godotenv.Load("../.env")
+//	@title			File Encryption API
+//	@version		0.1
+//	@description	Webserver serving file encryption/decryption capabilities.
 
-	client, err := mongo.Connect(options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
-	if err != nil {
-		log.Fatalln("could not connect to mongo")
+//	@license.name	MIT
+//	@license.url	https://opensource.org/license/mit
+
+// @BasePath
+func main() {
+	port := flag.String("port", "7780", "Port to listen on.")
+	host := flag.String("address", "0.0.0.0", "Address of the API endpoint")
+	flag.Parse()
+
+	r := chi.NewRouter()
+	{
+		r.Use(middleware.Heartbeat("/ping"))
+		r.Use(middleware.Recoverer)
+		r.Use(middleware.Logger)
+
+		r.Post("/encrypt", handler.Encrypt)
+		r.Post("/decrypt", handler.Decrypt)
+
+		if os.Getenv("APP_ENV") != "prod" {
+			addr := fmt.Sprintf("http://localhost:%v/swagger/", *port)
+			r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(addr+"doc.json")))
+			log.Printf("Swagger UI available at %v\n", addr+"index.html")
+		}
 	}
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
+
+	serv := &http.Server{Addr: *host + ":" + *port, Handler: r}
+	go func() {
+		log.Printf("http: Listening on %v:%v\n", *host, *port)
+		if err := serv.ListenAndServe(); err != nil {
+			log.Fatalln(err)
 		}
 	}()
 
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+
+	<-stop
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	collection := client.Database("mongodb").Collection("files-metadata")
-	result, err := collection.InsertOne(ctx, map[string]any{
-		"path": "example.file",
-		"size": 123,
-	})
-	if err != nil {
+	if err := serv.Shutdown(ctx); err != nil {
 		panic(err)
 	}
-	fmt.Println(result)
 }
