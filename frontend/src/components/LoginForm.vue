@@ -8,14 +8,28 @@ const router = useRouter();
 const toast = useToast();
 import { hashPassword } from "@/utils/password";
 const onFormSubmit = async (event: FormSubmitEvent) => {
-    let username = event.states.username.value;
-    let password = event.states.password.value;
-    if (!username || !password) {
-      console.log("Empty credentials");
-      toast.add({severity: 'error', summary: 'Credentials cannot be empty', life: 3000});
-      return;
+    let username = event.states.username;
+    let password = event.states.password;
+    let invalid = false;
+    if (!username.value) {
+        username.invalid = true;
+        username.valid = false;
+        username.error = { message: 'Username is required' };
+        toast.add({severity: 'error', summary: 'Username is required', life: 3000});
+        invalid = true;
     }
-    await login(username, password, router, toast);
+    if (!password.value) {
+        password.invalid = true;
+        password.valid = false;
+        password.error = { message: 'Password is required' };
+        toast.add({severity: 'error', summary: 'Password is required', life: 3000});
+        invalid = true;
+    }
+    console.log(event);
+    if (invalid) {
+        return;
+    }
+    await login(username.value, password.value, router, toast);
 };
 const getSalt = async (username: string) => {
     let response = await fetch(`http://localhost:2024/login/${username}`);
@@ -57,16 +71,16 @@ const login = async (username: string, password: string, router: any, toast: any
     <main class="login-component">
         <Toast />
         <h1 class="vertical-padding">Log in</h1>
-        <Form @submit="onFormSubmit">
-            <FormField v-slot="$username" name="username" class="vertical-padding">
-                <InputText type="text" placeholder="Username" v-bind="$username.props" class="login-element"/>
-                <Message v-if="$username.invalid" severity="error" size="small" variant="simple">{{ $username.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$password" name="password" class="vertical-padding">
-                <InputText type="password" placeholder="Password" v-bind="$password.props" class="login-element"/>
-                <Message v-if="$password.invalid" severity="error" size="small" variant="simple">{{ $password.error?.message }}</Message>
-            </FormField>
-            <Button type="submit" label="Log in" class="login-element"/>
+        <Form v-slot="$form" @submit="onFormSubmit" class="login-element">
+            <div class="login-element vertical-padding">
+                <InputText name="username" type="text" placeholder="Username" class="login-input"/>
+                <Message v-if="$form.states?.username.invalid" severity="error" size="small" variant="simple">{{ $form.states.username.error?.message }}</Message>
+            </div>
+            <div class="login-element vertical-padding">
+                <InputText name="password" type="password" placeholder="Password" class="login-input"/>
+                <Message v-if="$form.states?.password.invalid" severity="error" size="small" variant="simple">{{ $form.states.password.error?.message }}</Message>
+            </div>
+            <Button type="submit" label="Log in" class="login-input"/>
         </Form>
     </main>
 </template>
@@ -76,8 +90,13 @@ const login = async (username: string, password: string, router: any, toast: any
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
 }
-.login-element {
+.login-input {
     width: 100%;
+}
+.login-element {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 .login-component {
     text-align: center;

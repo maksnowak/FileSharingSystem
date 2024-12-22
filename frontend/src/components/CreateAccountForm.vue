@@ -10,15 +10,38 @@ import Toast from 'primevue/toast';
 import { hashPassword } from "@/utils/password";
 const toast = useToast();
 const onFormSubmit = (event: FormSubmitEvent) => {
-    let username = event.states.username.value;
-    let email = event.states.email.value;
-    let password = event.states.password.value;
-    if (!username || !email || !password) {
-      console.log("Empty fields");
-      toast.add({severity: 'error', summary: 'Credentials cannot be empty', life: 3000});
-      return;
+    let username = event.states.username;
+    let email = event.states.email;
+    let password = event.states.password;
+    let invalid = false;
+    if (!username.value) {
+        username.invalid = true;
+        username.valid = false;
+        username.error = { message: 'Username is required' };
+        invalid = true;
+        toast.add({severity: 'error', summary: 'Username is required', life: 3000});
+        return;
     }
-    createAccount(username, email, password, toast);
+    if (!email.value) {
+        email.invalid = true;
+        email.valid = false;
+        email.error = { message: 'Email is required' };
+        invalid = true;
+        toast.add({severity: 'error', summary: 'Email is required', life: 3000});
+        return;
+    }
+    if (!password.value) {
+        password.invalid = true;
+        password.valid = false;
+        password.error = { message: 'Password is required' };
+        invalid = true;
+        toast.add({severity: 'error', summary: 'Password is required', life: 3000});
+        return;
+    }
+    if (invalid) {
+        return;
+    }
+    createAccount(username.value, email.value, password.value, toast);
 };
 const createAccount = async (username: string, email: string, password: string, toast: any) => {
     let passwordSalt = Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), x=>(('00'+x.toString(16)).slice(-2))).join('');
@@ -50,20 +73,20 @@ const createAccount = async (username: string, email: string, password: string, 
     <main class="register-component">
         <Toast />
         <h1 class="vertical-padding">Create an account</h1>
-        <Form @submit="onFormSubmit">
-            <FormField v-slot="$username" name="username" class="vertical-padding">
-                <InputText type="text" placeholder="Username" v-bind="$username.props" class="register-element"/>
-                <Message v-if="$username.invalid" severity="error" size="small" variant="simple">{{ $username.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$email" name="email" class="vertical-padding">
-                <InputText type="email" placeholder="Email" v-bind="$email.props" class="register-element"/>
-                <Message v-if="$email.invalid" severity="error" size="small" variant="simple">{{ $email.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$password" name="password" class="vertical-padding">
-                <InputText type="password" placeholder="Password" v-bind="$password.props" class="register-element"/>
-                <Message v-if="$password.invalid" severity="error" size="small" variant="simple">{{ $password.error?.message }}</Message>
-            </FormField>
-            <Button type="submit" severity="secondary" label="Create account" class="register-element"/>
+        <Form v-slot="$form" @submit="onFormSubmit" class="register-element">
+            <div class="register-element vertical-padding">
+                <InputText name="username" type="text" placeholder="Username" class="register-input"/>
+                <Message v-if="$form.states?.username.valid" severity="error" size="small" variant="simple">{{ $form.states.username.error?.message }}</Message>
+            </div>
+            <div class="register-element vertical-padding">
+                <InputText name="email" type="email" placeholder="Email" class="register-input"/>
+                <Message v-if="$form.states?.email.invalid" severity="error" size="small" variant="simple">{{ $form.states.email.error?.message }}</Message>
+            </div>
+            <div class="register-element vertical-padding">
+                <InputText name="password" type="password" placeholder="Password" class="register-input"/>
+                <Message v-if="$form.states?.password.invalid" severity="error" size="small" variant="simple">{{ $form.states.password.error?.message }}</Message>
+            </div>
+            <Button type="submit" severity="secondary" label="Create account" class="register-input"/>
         </Form>
     </main>
 </template>
@@ -73,8 +96,13 @@ const createAccount = async (username: string, email: string, password: string, 
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
 }
-.register-element {
+.register-input {
     width: 100%;
+}
+.register-element {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 .register-component {
     text-align: center;
