@@ -1,13 +1,11 @@
-//TODO: Add basic input validation
-//FIXME: Not entering anything in the input fields throws errors in the console
-
-
 <script setup lang="ts">
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms';
 import { InputText, Message, Button } from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
 import { hashPassword } from "@/utils/password";
+import {useRouter} from "vue-router";
+const router = useRouter();
 const toast = useToast();
 const onFormSubmit = (event: FormSubmitEvent) => {
     let username = event.states.username.value;
@@ -22,7 +20,7 @@ const onFormSubmit = (event: FormSubmitEvent) => {
 };
 const createAccount = async (username: string, email: string, password: string, toast: any) => {
     let passwordSalt = Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), x=>(('00'+x.toString(16)).slice(-2))).join('');
-    let hashedPassword = hashPassword(password, passwordSalt);
+    let hashedPassword = await hashPassword(password, passwordSalt);
     let response = fetch(`http://localhost:2024/accounts`, {
         method: 'POST',
         headers: {
@@ -38,7 +36,9 @@ const createAccount = async (username: string, email: string, password: string, 
     });
     if ((await response).status === 200) {
         console.log('Account created');
-        toast.add({severity: 'success', summary: 'Account created', life: 3000});
+        toast.add({severity: 'success', summary: 'Account created successfully. Redirecting to login page in 3 seconds...', life: 3000});
+        await new Promise(f => setTimeout(f, 3000));
+        await router.push("/login");
     } else {
         console.log('Account creation failed');
         toast.add({severity: 'error', summary: 'Account creation failed: ' + await (await response).text(), life: 3000});
