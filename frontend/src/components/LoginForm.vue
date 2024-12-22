@@ -45,7 +45,8 @@ const login = async (username: string, password: string, router: any, toast: any
         })
     });
     if ((await response).status === 200) {
-        await userStore().setUser(response.json());
+        const user = await response.json();
+        await userStore().setUser(user);
         console.log('Logged in');
         router.push('/home');
     } else {
