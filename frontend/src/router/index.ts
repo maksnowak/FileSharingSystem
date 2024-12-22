@@ -19,8 +19,6 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const user = userStore().getUser; // Directly access the getter to get the user
 
-  console.log(user);
-
   if (to.meta.requiresAuth && !user) {
     next("/login"); // Redirect to login if not authenticated
   } else if ((to.path === "/login" || to.path === "/create-account") && user) {
