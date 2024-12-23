@@ -1,11 +1,17 @@
-all: test build
+MAKEFLAGS += --silent
+
+all: test build run
 
 # ADD YOUR MICROSERVICE FOLDER HERE
 SERVICES=file-encryption file-transfer accounts
 
 build:
 	echo "Building services..."; \
-	docker compose up --build -d
+	docker compose build
+
+run:
+	echo "Running services..."; \
+	docker compose up -d
 
 stop:
 	echo "Stopping services..."; \
