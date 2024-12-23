@@ -9,20 +9,13 @@ services:
   file-encryption:
     build: file-encryption
     container_name: file-encryption
-<<<<<<< HEAD
     image: pis/file-encryption:0.2
-=======
-    image: file-encryption:0.2
->>>>>>> f75f513 (add encryption and decryption)
     ports:
       - "7780:7780"
     environment:
       - APP_ENV=prod
-<<<<<<< HEAD
     volumes:
       - ./file-encryption/.env:/app/config/.env
-=======
->>>>>>> f75f513 (add encryption and decryption)
   file-transfer:
     depends_on:
       - mongodb
