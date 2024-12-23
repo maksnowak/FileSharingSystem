@@ -9,7 +9,7 @@ services:
   file-encryption:
     build: file-encryption
     container_name: file-encryption
-    image: file-encryption:0.2
+    image: pis/file-encryption:0.2
     ports:
       - "7780:7780"
     environment:
