@@ -1,6 +1,7 @@
 services:
   mongodb:
     image: mongo
+    container_name: mongodb
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
@@ -8,21 +9,21 @@ services:
   file-encryption:
     build: file-encryption
     container_name: file-encryption
-    image: file-encryption:0.1
+    image: pis/file-encryption:0.1
     env_file: .env
   file-transfer:
     depends_on:
       - mongodb
     build: file-transfer
     container_name: file-transfer
-    image: file-transfer:0.1
+    image: pis/file-transfer:0.1
     ports:
       - "8080:8080"
     env_file: .env
   accounts:
     build: accounts
     container_name: accounts
-    image: accounts:0.2
+    image: pis/accounts:0.2
     ports:
       - "2024:2024"
     environment:
