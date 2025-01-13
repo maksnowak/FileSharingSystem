@@ -3,9 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/url"
 	"os"
+
+	"file-transfer/models"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
 	"github.com/joho/godotenv"
@@ -35,12 +36,26 @@ func InitBlobStorage(containerName string) (*BlobStorage, error) {
 	}, nil
 }
 
-func (bs *BlobStorage) UploadFile(ctx context.Context, filename string, data io.Reader) (string, error) {
-	blobURL := bs.containerURL.NewBlockBlobURL(filename)
-	_, err := azblob.UploadStreamToBlockBlob(ctx, data, blobURL, azblob.UploadStreamToBlockBlobOptions{})
+func (bs *BlobStorage) UploadFile(ctx context.Context, f models.FileData) (string, error) {
+	blobURL := bs.containerURL.NewBlockBlobURL(f.Path)
+	_, err := azblob.UploadStreamToBlockBlob(ctx, f.Data, blobURL, azblob.UploadStreamToBlockBlobOptions{})
 	if err != nil {
 		return "", err
 	}
 
 	return blobURL.String(), nil
+}
+
+func (bs *BlobStorage) DownloadFile(ctx context.Context, path string) (*models.FileData, error) {
+	blobURL := bs.containerURL.NewBlockBlobURL(path)
+	resp, err := blobURL.Download(ctx, 0, 0, azblob.BlobAccessConditions{}, false, azblob.ClientProvidedKeyOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	f := &models.FileData{
+		Path: path,
+		Data: resp.Body(azblob.RetryReaderOptions{}),
+	}
+	return f, nil
 }
