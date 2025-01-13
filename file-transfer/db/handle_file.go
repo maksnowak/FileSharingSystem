@@ -50,7 +50,8 @@ func UpdateFile(ctx *context.Context, collection *mongo.Collection, f models.Fil
 			"fileName":  f.FileName,
 			"userID":    f.UserID,
 			"tags":      f.Tags,
-			"data":      f.Data,
+			"path":      f.Path,
+			"blobURL":   f.BlobURL,
 			"hasAccess": f.HasAccess,
 		},
 	}
