@@ -19,6 +19,7 @@ type App struct {
 	Logger          *log.Logger
 	MongoClient     *mongo.Client
 	MongoCollection *mongo.Collection
+	BlobStorage     *db.BlobStorage
 }
 
 func (a *App) Initialize() {
@@ -33,7 +34,9 @@ func (a *App) Initialize() {
 
 func (a *App) Run(ctx *context.Context, addr string) {
 	a.Server = &http.Server{Addr: addr, Handler: a.Router}
+
 	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
+	a.BlobStorage, _ = db.InitBlobStorage("files")
 
 	a.Logger.Println("Server is ready to handle requests at :8080")
 	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {

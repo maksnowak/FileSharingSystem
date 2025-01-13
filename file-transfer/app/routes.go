@@ -17,6 +17,7 @@ func (a *App) initRoutes() {
 		httpSwagger.DomID("swagger-ui"),
 	)).Methods(http.MethodGet)
 	log.Println("Swagger available at: http://localhost:8080/swagger/index.html")
+
 	a.Router.HandleFunc("/file", a.createFile).Methods(http.MethodPost)
 	a.Router.HandleFunc("/files", a.getAllFiles).Methods(http.MethodGet)
 	a.Router.HandleFunc("/file/{file_id}", a.getFile).Methods(http.MethodGet)
