@@ -1,12 +1,8 @@
 package models
 
-import (
-	"io"
-)
-
 type FileData struct {
-	Path string    `json:"path"`
-	Data io.Reader `json:"data"`
+	Path string `json:"path"`
+	Data []byte `json:"data"`
 }
 
 type FileDataResponse struct {
