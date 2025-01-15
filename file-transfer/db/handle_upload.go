@@ -1,11 +1,15 @@
 package db
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 
 	"file-transfer/models"
+
+	"github.com/Azure/azure-storage-blob-go/azblob"
 )
 
 func (bs *LocalBlobStorage) UploadFile(ctx context.Context, f models.FileData) (string, error) {
@@ -16,7 +20,7 @@ func (bs *LocalBlobStorage) UploadFile(ctx context.Context, f models.FileData) (
 	}
 	defer file.Close()
 
-	_, err = file.Write()
+	_, err = file.Write(f.Data)
 	if err != nil {
 		return "", err
 	}
@@ -31,16 +35,24 @@ func (bs *LocalBlobStorage) DownloadFile(ctx context.Context, path string) (*mod
 	}
 	defer file.Close()
 
+	reader := io.Reader(file)
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+
 	f := &models.FileData{
 		Path: path,
-		Data: file,
+		Data: data,
 	}
 	return f, nil
 }
 
 func (bs *AzureBlobStorage) UploadFile(ctx context.Context, f models.FileData) (string, error) {
+	reader := bytes.NewReader(f.Data)
+
 	blobURL := bs.containerURL.NewBlockBlobURL(f.Path)
-	_, err := azblob.UploadStreamToBlockBlob(ctx, f.Data, blobURL, azblob.UploadStreamToBlockBlobOptions{})
+	_, err := azblob.UploadStreamToBlockBlob(ctx, reader, blobURL, azblob.UploadStreamToBlockBlobOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -55,9 +67,17 @@ func (bs *AzureBlobStorage) DownloadFile(ctx context.Context, path string) (*mod
 		return nil, err
 	}
 
+	reader := resp.Body(azblob.RetryReaderOptions{})
+	defer reader.Close()
+
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+
 	f := &models.FileData{
 		Path: path,
-		Data: resp.Body(azblob.RetryReaderOptions{}),
+		Data: data,
 	}
 	return f, nil
 }
