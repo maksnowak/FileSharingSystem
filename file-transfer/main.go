@@ -23,12 +23,15 @@ import (
 func main() {
 	port := flag.String("port", "8080", "Port to listen on.")
 	flag.Parse()
-	a := app.App{}
-	a.Initialize()
 
 	done := make(chan bool)
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	a := app.App{}
 
 	go func() {
 		<-quit
@@ -42,9 +45,7 @@ func main() {
 		close(done)
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
+	a.Initialize(&ctx)
 	a.Run(&ctx, ":"+*port)
 	<-done
 }

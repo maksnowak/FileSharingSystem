@@ -23,18 +23,9 @@ type App struct {
 	BlobStorage     db.BlobStorage
 }
 
-func (a *App) Initialize() {
+func (a *App) Initialize(ctx *context.Context) {
 	a.Router = mux.NewRouter().StrictSlash(true)
 	a.Logger = log.New(os.Stdout, "server: ", log.Flags())
-
-	logMiddleware := NewLogMiddleware(a.Logger)
-	a.Router.Use(logMiddleware.Func())
-
-	a.initRoutes()
-}
-
-func (a *App) Run(ctx *context.Context, addr string) {
-	a.Server = &http.Server{Addr: addr, Handler: a.Router}
 
 	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
 
@@ -47,6 +38,15 @@ func (a *App) Run(ctx *context.Context, addr string) {
 	} else {
 		a.BlobStorage, _ = db.InitAzureBlobStorage("files")
 	}
+
+	logMiddleware := NewLogMiddleware(a.Logger)
+	a.Router.Use(logMiddleware.Func())
+
+	a.initRoutes()
+}
+
+func (a *App) Run(ctx *context.Context, addr string) {
+	a.Server = &http.Server{Addr: addr, Handler: a.Router}
 
 	a.Logger.Println("Server is ready to handle requests at :8080")
 	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
