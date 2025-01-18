@@ -41,13 +41,7 @@ func Decrypt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := sha256.Sum256([]byte(password))
-	block, _ := aes.NewCipher(key[:])
-	gcm, _ := cipher.NewGCM(block)
-
-	nonce := cipherText[:gcm.NonceSize()]
-	cipherText = cipherText[gcm.NonceSize():]
-	plainText, err := gcm.Open(nil, nonce, cipherText, nil)
+	plainText, err := decrypt(cipherText, password)
 	if err != nil {
 		http.Error(w, "Bad password", http.StatusForbidden)
 		return
@@ -55,4 +49,18 @@ func Decrypt(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	_, _ = w.Write(plainText)
+}
+
+func decrypt(cipherText []byte, password string) (plainText []byte, err error) {
+	key := sha256.Sum256([]byte(password))
+	block, _ := aes.NewCipher(key[:])
+	gcm, _ := cipher.NewGCM(block)
+	
+	nonce := cipherText[:gcm.NonceSize()]
+	cipherText = cipherText[gcm.NonceSize():]
+	plainText, err = gcm.Open(nil, nonce, cipherText, nil)
+	if err != nil {
+		return nil, err
+	}
+	return plainText, nil
 }

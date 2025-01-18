@@ -17,6 +17,10 @@ stages:
         parameters:
           appName: "file_transfer"
           directory: "file-transfer/"
+      - template: templates/go-test.yml
+        parameters:
+          appName: "file_encryption"
+          directory: "file-encryption/"
 
   - stage: DockerBuildAndPush
     dependsOn: BuildAndTest
@@ -26,6 +30,10 @@ stages:
         parameters:
           appName: "file_transfer"
           directory: "file-transfer/"
+      - template: templates/docker-build-push.yml
+        parameters:
+          appName: "file_encryption"
+          directory: "file-encryption/"
 
   - stage: Deploy
     dependsOn: DockerBuildAndPush
@@ -35,3 +43,7 @@ stages:
         parameters:
           appName: "file_transfer"
           port: "8080:8080"
+      - template: templates/deploy.yml
+        parameters:
+          appName: "file_encryption"
+          directory: "file-encryption/"
