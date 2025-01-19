@@ -1,34 +1,35 @@
 package app
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"log"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"os/exec"
 	"testing"
-	"time"
+
+	"file-transfer/db"
+
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-func runTestApp(t *testing.T) *App {
+func RunTestApp(t *testing.T) *App {
+	ctx := context.Background()
 	a := &App{}
 
 	a.Router = mux.NewRouter().StrictSlash(true)
 	a.Logger = log.New(os.Stdout, "server: ", log.Flags())
 
-	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
+	a.MongoCollection, a.MongoClient = db.InitMongo(&ctx)
 
 	a.BlobStorage, _ = db.InitLocalBlobStorage("files")
 
 	a.initRoutes()
+
+	return a
 }
 
 func SetupDatabase() {
@@ -37,12 +38,6 @@ func SetupDatabase() {
 	_, err := cmd.Output()
 	if err != nil {
 		fmt.Println("could not run command: ", err)
-	}
-	db.Client, err = mongo.Connect(options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		log.Fatalf("Failed to connect to MongoDB: %v", err)
-	} else {
-		log.Println("Database set up successfully")
 	}
 }
 
@@ -57,9 +52,23 @@ func KillDatabase() {
 	}
 }
 
-func CleanDatabase() {
-	coll := db.GetCollection("files")
-	_, _ = coll.DeleteMany(context.Background(), bson.D{})
+func CleanDatabase(a *App) {
+	_, _ = a.MongoCollection.DeleteMany(context.Background(), bson.D{})
+}
+
+func TestHealthCheck(t *testing.T) {
+	a := RunTestApp(t)
+	defer a.Close(context.Background())
+
+	t.Run("it should return 200 OK", func(t *testing.T) {
+		resp, err := http.Get("http://localhost:8080/health")
+
+		if err != nil {
+			t.Fatalf("Could not send GET request: %v", err)
+		}
+
+		assert.Equal(t, 200, resp.StatusCode)
+	})
 }
 
 func TestMain(m *testing.M) {
