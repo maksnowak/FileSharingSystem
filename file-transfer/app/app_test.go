@@ -74,6 +74,7 @@ func KillDatabase() {
 }
 
 func CleanDatabase(t *testing.T, collection *mongo.Collection) {
+	log.Println("Cleaning database...")
 	ctx := context.TODO()
 	_, err := collection.DeleteMany(ctx, bson.M{})
 	if err != nil {
