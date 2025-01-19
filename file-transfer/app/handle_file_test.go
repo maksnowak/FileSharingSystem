@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"file-transfer/models"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -80,7 +81,9 @@ func TestFileIntegrationTests(t *testing.T) {
 		assert.NoError(t, err)
 
 		var actual []models.File
-		err = json.NewDecoder(resp.Body).Decode(&actual)
+		data, err := io.ReadAll(resp.Body)
+		assert.NoError(t, err)
+		err = json.Unmarshal(data, &actual)
 		assert.NoError(t, err)
 	})
 
@@ -100,12 +103,17 @@ func TestFileIntegrationTests(t *testing.T) {
 		}
 
 		// Create file
-		a.MongoCollection.InsertOne(context.TODO(), initial)
+		body, err := json.Marshal(initial)
+		assert.NoError(t, err)
+
+		reader := bytes.NewReader(body)
+		resp, err := http.Post(server.URL+"/file", "application/json", reader)
+		assert.NoError(t, err)
 
 		// Update file
-		body, err := json.Marshal(expected)
+		body, err = json.Marshal(expected)
 		assert.NoError(t, err)
-		resp, err := http.Post(server.URL+"/file/"+initial.FileID.Hex(), "application/json", bytes.NewReader(body))
+		resp, err = http.Post(server.URL+"/file/"+initial.FileID.Hex(), "application/json", bytes.NewReader(body))
 		assert.NoError(t, err)
 
 		// Get file
