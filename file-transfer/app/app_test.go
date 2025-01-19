@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"testing"
@@ -14,9 +15,17 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func RunTestApp(t *testing.T) *App {
+	log.Println("Setting up database...")
+	cmd := exec.Command("docker", "run", "--rm", "-d", "-p", "27017:27017", "--name", "testDB", "mongo")
+	_, err := cmd.Output()
+	if err != nil {
+		fmt.Println("could not run command: ", err)
+	}
+
 	ctx := context.Background()
 	a := &App{}
 
@@ -32,15 +41,6 @@ func RunTestApp(t *testing.T) *App {
 	return a
 }
 
-func SetupDatabase() {
-	log.Println("Setting up database...")
-	cmd := exec.Command("docker", "run", "--rm", "-d", "-p", "27017:27017", "--name", "testDB", "mongo")
-	_, err := cmd.Output()
-	if err != nil {
-		fmt.Println("could not run command: ", err)
-	}
-}
-
 func KillDatabase() {
 	log.Println("Killing database...")
 	cmd := exec.Command("docker", "kill", "testDB")
@@ -52,28 +52,26 @@ func KillDatabase() {
 	}
 }
 
-func CleanDatabase(a *App) {
-	_, _ = a.MongoCollection.DeleteMany(context.Background(), bson.D{})
+func CleanDatabase(t *testing.T, collection *mongo.Collection) {
+	ctx := context.TODO()
+	_, err := collection.DeleteMany(ctx, bson.M{})
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestHealthCheck(t *testing.T) {
 	a := RunTestApp(t)
 	defer a.Close(context.Background())
+	defer KillDatabase()
 
-	t.Run("it should return 200 OK", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:8080/health")
-
+	t.Run("it should return 200", func(t *testing.T) {
+		server := httptest.NewServer(a.Server.Handler)
+		resp, err := http.Get(server.URL + "/health")
 		if err != nil {
-			t.Fatalf("Could not send GET request: %v", err)
+			t.Error(err)
 		}
 
 		assert.Equal(t, 200, resp.StatusCode)
 	})
-}
-
-func TestMain(m *testing.M) {
-	SetupDatabase()
-	code := m.Run()
-	KillDatabase()
-	os.Exit(code)
 }
