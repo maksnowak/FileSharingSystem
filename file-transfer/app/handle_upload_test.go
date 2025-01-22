@@ -16,52 +16,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUploadLocalStorage(t *testing.T) {
-	a := RunTestApp(t)
-	defer a.Close(context.Background())
-	defer KillDatabase()
-
-	t.Run("it should upload and return file", func(t *testing.T) {
-		server := httptest.NewServer(a.Server.Handler)
-		expected := models.FileDataRequest{
-			Path: "test.txt",
-		}
-
-		fileData := "Hello, World!"
-		body := &bytes.Buffer{}
-		writer := multipart.NewWriter(body)
-
-		part, err := writer.CreateFormFile("file", "test.txt")
-		assert.NoError(t, err)
-
-		_, err = io.Copy(part, strings.NewReader(fileData))
-		assert.NoError(t, err)
-
-		err = writer.WriteField("path", expected.Path)
-		assert.NoError(t, err)
-
-		writer.Close()
-
-		resp, err := http.Post(server.URL+"/files/upload", writer.FormDataContentType(), body)
-		assert.NoError(t, err)
-
-		var actual models.FileDataResponse
-		err = json.NewDecoder(resp.Body).Decode(&actual)
-		assert.NoError(t, err)
-
-		assert.Equal(t, expected.Path, actual.Path)
-	})
-}
-
-func TestDownloadLocalStorage(t *testing.T) {
+func TestLocalStorage(t *testing.T) {
 	a := RunTestApp(t)
 	defer a.Close(context.Background())
 	defer KillDatabase()
 
 	t.Run("it should upload and download file", func(t *testing.T) {
 		server := httptest.NewServer(a.Server.Handler)
-		expected := models.FileDataRequest{
-			Path: "test.txt",
+		expected := models.FileResponse{
+			UserID: "123",
+			Path:   "test.txt",
+			URL:    "http://localhost:8080/files/test.txt",
+			Size:   13,
 		}
 
 		fileData := "Hello, World!"
@@ -74,25 +40,28 @@ func TestDownloadLocalStorage(t *testing.T) {
 		_, err = io.Copy(part, strings.NewReader(fileData))
 		assert.NoError(t, err)
 
-		err = writer.WriteField("path", expected.Path)
+		err = writer.WriteField("metadata", `{"user_id":"123","path":"test.txt"}`)
 		assert.NoError(t, err)
 
 		writer.Close()
 
-		resp, err := http.Post(server.URL+"/files/upload", writer.FormDataContentType(), body)
+		resp, err := http.Post(server.URL+"/file/upload", writer.FormDataContentType(), body)
 		assert.NoError(t, err)
 
-		var actual models.FileDataResponse
+		var actual models.FileResponse
 		err = json.NewDecoder(resp.Body).Decode(&actual)
-
-		resp, err = http.Post(server.URL+"/files/download", "application/json", strings.NewReader(`{"path":"test.txt"}`))
 		assert.NoError(t, err)
 
-		var actualDownload models.FileDataResponse
-		err = json.NewDecoder(resp.Body).Decode(&actualDownload)
+		assert.Equal(t, expected.UserID, actual.UserID)
+		assert.Equal(t, expected.Path, actual.Path)
+		assert.Equal(t, expected.URL, actual.URL)
+
+		resp, err = http.Post(server.URL+"/file/download", "application/json", strings.NewReader(`{"user_id":"123","path":"test.txt"}`))
 		assert.NoError(t, err)
 
-		assert.Equal(t, expected.Path, actualDownload.Path)
-		assert.Equal(t, actual.URL, actualDownload.URL)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, "attachment; filename=test.txt", resp.Header.Get("Content-Disposition"))
+		assert.Equal(t, "application/octet-stream", resp.Header.Get("Content-Type"))
+		assert.Equal(t, fileData, resp.Body)
 	})
 }
