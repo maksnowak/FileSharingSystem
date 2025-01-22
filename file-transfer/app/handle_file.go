@@ -9,7 +9,7 @@ import (
 	"file-transfer/models"
 
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // createFile godoc
@@ -35,12 +35,13 @@ func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := db.CreateFile(&ctx, a.MongoCollection, f); err != nil {
+	file, err := db.CreateFile(&ctx, a.MongoCollection, f)
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, f)
+	respondWithJSON(w, http.StatusCreated, file)
 }
 
 // getFile godoc
@@ -57,7 +58,7 @@ func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 func (a *App) getFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(vars["file_id"])
+	id, err := bson.ObjectIDFromHex(vars["file_id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid file ID")
 		return
@@ -90,7 +91,31 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, files)
+	respondWithJSON(w, http.StatusOK, files)
+}
+
+// getFilesByUser godoc
+//
+//  @Summary    Retrieve files by user
+//  @Description Retrieve information about all files uploaded by a specific user
+//  @Tags       files
+//  @Produce    json
+//  @Param      user_id path    string      true    "User ID"
+//  @Success    200     {array}     models.File "Files uploaded by the user"
+//  @Failure    500     {string}    string      "Internal server error"
+//  @Router     /files/user/{user_id} [get]
+func (a *App) getFilesByUser(w http.ResponseWriter, r *http.Request) {
+	ctx := context.TODO()
+	vars := mux.Vars(r)
+	userID := vars["user_id"]
+
+	files, err := db.GetFilesByUserID(&ctx, a.MongoCollection, userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, files)
 }
 
 // updateFile godoc
@@ -109,7 +134,7 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(vars["file_id"])
+	id, err := bson.ObjectIDFromHex(vars["file_id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid file ID")
 		return
@@ -145,7 +170,7 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 func (a *App) deleteFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(vars["file_id"])
+	id, err := bson.ObjectIDFromHex(vars["file_id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid file ID")
 		return

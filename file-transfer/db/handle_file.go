@@ -9,18 +9,19 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-func CreateFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {
-	_, err := collection.InsertOne(*ctx, f)
+func CreateFile(ctx *context.Context, collection *mongo.Collection, f models.File) (models.File, error) {
+	res, err := collection.InsertOne(*ctx, f)
 	if err != nil {
-		return err
+		return f, err
 	}
 
-	return nil
+	f.FileID = res.InsertedID.(bson.ObjectID)
+	return f, nil
 }
 
 func GetAllFiles(ctx *context.Context, collection *mongo.Collection) ([]models.File, error) {
 	var files []models.File
-	cursor, err := collection.Find(*ctx, nil)
+	cursor, err := collection.Find(*ctx, bson.D{})
 	if err != nil {
 		return files, err
 	}
@@ -34,12 +35,31 @@ func GetAllFiles(ctx *context.Context, collection *mongo.Collection) ([]models.F
 }
 
 func GetFile(ctx *context.Context, collection *mongo.Collection, f models.File) (models.File, error) {
-	err := collection.FindOne(*ctx, f).Decode(f)
+	filter := bson.M{"_id": f.FileID}
+
+	err := collection.FindOne(*ctx, filter).Decode(f)
 	if err != nil {
 		return f, err
 	}
 
 	return f, nil
+}
+
+func GetFilesByUserID(ctx *context.Context, collection *mongo.Collection, userID string) ([]models.File, error) {
+	var files []models.File
+	filter := bson.M{"userID": userID}
+
+	cursor, err := collection.Find(*ctx, filter)
+	if err != nil {
+		return files, err
+	}
+
+	err = cursor.All(*ctx, &files)
+	if err != nil {
+		return files, err
+	}
+
+	return files, nil
 }
 
 func UpdateFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {

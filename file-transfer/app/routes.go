@@ -23,6 +23,7 @@ func (a *App) initRoutes() {
 	a.Router.HandleFunc("/file/{file_id}", a.getFile).Methods(http.MethodGet)
 	a.Router.HandleFunc("/file/{file_id}", a.updateFile).Methods(http.MethodPut)
 	a.Router.HandleFunc("/file/{file_id}", a.deleteFile).Methods(http.MethodDelete)
+	a.Router.HandleFunc("/files/user/{user_id}", a.getFilesByUser).Methods(http.MethodGet)
 
 	a.Router.HandleFunc("file/upload", a.uploadFile).Methods(http.MethodPost)
 	a.Router.HandleFunc("file/download", a.downloadFile).Methods(http.MethodGet)
