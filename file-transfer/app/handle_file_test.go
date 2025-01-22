@@ -129,4 +129,87 @@ func TestFileIntegrationTests(t *testing.T) {
 		assert.Equal(t, expected.Path, actual.Path)
 		assert.Equal(t, expected.BlobURL, actual.BlobURL)
 	})
+
+	t.Run("it should delete file", func(t *testing.T) {
+		defer CleanDatabase(t, a.MongoCollection)
+		server := httptest.NewServer(a.Server.Handler)
+		file := models.File{
+			FileName: "test.txt",
+			UserID:   "123",
+			Path:     "path/test.txt",
+		}
+
+		// Create file
+		body, err := json.Marshal(file)
+		assert.NoError(t, err)
+
+		reader := bytes.NewReader(body)
+		resp, err := http.Post(server.URL+"/file", "application/json", reader)
+		assert.NoError(t, err)
+
+		var actual models.File
+		err = json.NewDecoder(resp.Body).Decode(&actual)
+		assert.NoError(t, err)
+
+		// Delete file
+		req, err := http.NewRequest(http.MethodDelete, server.URL+"/file/"+actual.FileID.Hex(), nil)
+		assert.NoError(t, err)
+
+		resp, err = http.DefaultClient.Do(req)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+		// Get file
+		resp, err = http.Get(server.URL + "/file/" + actual.FileID.Hex())
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	})
+
+	t.Run("it should return all user files", func(t *testing.T) {
+		defer CleanDatabase(t, a.MongoCollection)
+		server := httptest.NewServer(a.Server.Handler)
+		file := models.File{
+			FileName: "test.txt",
+			UserID:   "123",
+			Path:     "path/test.txt",
+		}
+		file2 := models.File{
+			FileName: "test2.txt",
+			UserID:   "456",
+			Path:     "path/test2.txt",
+		}
+
+		// Create files
+		reqBody, err := json.Marshal(file)
+		assert.NoError(t, err)
+
+		reader := bytes.NewReader(reqBody)
+		resp, err := http.Post(server.URL+"/file", "application/json", reader)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+		reqBody, err = json.Marshal(file2)
+		assert.NoError(t, err)
+
+		reader = bytes.NewReader(reqBody)
+		resp, err = http.Post(server.URL+"/file", "application/json", reader)
+
+		// Get all files
+		resp, err = http.Get(server.URL + "/files/user/123")
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+		actual := []models.File{}
+		data, err := io.ReadAll(resp.Body)
+		assert.NoError(t, err)
+
+		err = json.Unmarshal(data, &actual)
+		assert.NoError(t, err)
+
+		assert.Len(t, actual, 1)
+	})
 }
