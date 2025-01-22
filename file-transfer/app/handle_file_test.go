@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"file-transfer/models"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -44,41 +45,27 @@ func TestFileIntegrationTests(t *testing.T) {
 		assert.Equal(t, expected.Path, actual.Path)
 	})
 
-	t.Run("it should return file", func(t *testing.T) {
-		defer CleanDatabase(t, a.MongoCollection)
-		server := httptest.NewServer(a.Server.Handler)
-		expected := models.File{
-			FileName: "test.txt",
-			UserID:   "123",
-			Path:     "path/test.txt",
-		}
-
-		// Create file
-		a.MongoCollection.InsertOne(context.TODO(), expected)
-
-		// Get file
-		resp, err := http.Get(server.URL + "/file/" + expected.FileID.Hex())
-		assert.NoError(t, err)
-
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-		var actual models.File
-		err = json.NewDecoder(resp.Body).Decode(&actual)
-		assert.NoError(t, err)
-	})
-
 	t.Run("it should return all files", func(t *testing.T) {
 		defer CleanDatabase(t, a.MongoCollection)
 		server := httptest.NewServer(a.Server.Handler)
-		expected := models.File{
+		file := models.File{
 			FileName: "test.txt",
 			UserID:   "123",
 			Path:     "path/test.txt",
 		}
 
-		// Create file
-		a.MongoCollection.InsertOne(context.TODO(), expected)
-		a.MongoCollection.InsertOne(context.TODO(), expected)
+		// Create files
+		for i := 0; i < 3; i++ {
+			file.FileName = fmt.Sprintf("test%d.txt", i)
+			body, err := json.Marshal(file)
+			assert.NoError(t, err)
+
+			reader := bytes.NewReader(body)
+			resp, err := http.Post(server.URL+"/file", "application/json", reader)
+			assert.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		}
 
 		// Get all files
 		resp, err := http.Get(server.URL + "/files")
@@ -91,6 +78,8 @@ func TestFileIntegrationTests(t *testing.T) {
 		assert.NoError(t, err)
 		err = json.Unmarshal(data, &actual)
 		assert.NoError(t, err)
+
+		assert.Len(t, actual, 3)
 	})
 
 	t.Run("it should modify file", func(t *testing.T) {
@@ -116,19 +105,22 @@ func TestFileIntegrationTests(t *testing.T) {
 		resp, err := http.Post(server.URL+"/file", "application/json", reader)
 		assert.NoError(t, err)
 
+		var actual models.File
+		err = json.NewDecoder(resp.Body).Decode(&actual)
+		assert.NoError(t, err)
+
 		// Update file
 		body, err = json.Marshal(expected)
 		assert.NoError(t, err)
-		resp, err = http.Post(server.URL+"/file/"+initial.FileID.Hex(), "application/json", bytes.NewReader(body))
+		resp, err = http.Post(server.URL+"/file/"+actual.FileID.Hex(), "application/json", bytes.NewReader(body))
 		assert.NoError(t, err)
 
 		// Get file
-		resp, err = http.Get(server.URL + "/file/" + initial.FileID.Hex())
+		resp, err = http.Get(server.URL + "/file/" + actual.FileID.Hex())
 		assert.NoError(t, err)
 
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var actual models.File
 		err = json.NewDecoder(resp.Body).Decode(&actual)
 		assert.NoError(t, err)
 

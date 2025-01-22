@@ -13,7 +13,7 @@ import (
 )
 
 func (bs *LocalBlobStorage) UploadFile(ctx context.Context, f models.FileData) (string, error) {
-	path := fmt.Sprintf("%s/%s", bs.rootPath, f.Path)
+	path := fmt.Sprintf("%s/%s/%s", bs.rootPath, f.UserID, f.Path)
 	file, err := os.Create(path)
 	if err != nil {
 		return "", err
@@ -28,8 +28,8 @@ func (bs *LocalBlobStorage) UploadFile(ctx context.Context, f models.FileData) (
 	return path, nil
 }
 
-func (bs *LocalBlobStorage) DownloadFile(ctx context.Context, path string) (*models.FileData, error) {
-	file, err := os.Open(fmt.Sprintf("%s/%s", bs.rootPath, path))
+func (bs *LocalBlobStorage) DownloadFile(ctx context.Context, userID string, path string) (*models.FileData, error) {
+	file, err := os.Open(fmt.Sprintf("%s/%s/%s", bs.rootPath, userID, path))
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (bs *LocalBlobStorage) DownloadFile(ctx context.Context, path string) (*mod
 func (bs *AzureBlobStorage) UploadFile(ctx context.Context, f models.FileData) (string, error) {
 	reader := bytes.NewReader(f.Data)
 
-	blobURL := bs.containerURL.NewBlockBlobURL(f.Path)
+	blobURL := bs.containerURL.NewBlockBlobURL(fmt.Sprintf("%s/%s", f.UserID, f.Path))
 	_, err := azblob.UploadStreamToBlockBlob(ctx, reader, blobURL, azblob.UploadStreamToBlockBlobOptions{})
 	if err != nil {
 		return "", err
@@ -60,8 +60,8 @@ func (bs *AzureBlobStorage) UploadFile(ctx context.Context, f models.FileData) (
 	return blobURL.String(), nil
 }
 
-func (bs *AzureBlobStorage) DownloadFile(ctx context.Context, path string) (*models.FileData, error) {
-	blobURL := bs.containerURL.NewBlockBlobURL(path)
+func (bs *AzureBlobStorage) DownloadFile(ctx context.Context, userID string, path string) (*models.FileData, error) {
+	blobURL := bs.containerURL.NewBlockBlobURL(fmt.Sprintf("%s/%s", userID, path))
 	resp, err := blobURL.Download(ctx, 0, 0, azblob.BlobAccessConditions{}, false, azblob.ClientProvidedKeyOptions{})
 	if err != nil {
 		return nil, err

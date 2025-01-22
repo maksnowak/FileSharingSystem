@@ -14,7 +14,7 @@ import (
 
 type BlobStorage interface {
 	UploadFile(ctx context.Context, f models.FileData) (string, error)
-	DownloadFile(ctx context.Context, path string) (*models.FileData, error)
+	DownloadFile(ctx context.Context, userID string, path string) (*models.FileData, error)
 }
 
 type LocalBlobStorage struct {
