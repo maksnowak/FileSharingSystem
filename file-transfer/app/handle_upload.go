@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} models.FileDataResponse
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Internal server error"
-// @Router /files/upload [post]
+// @Router /upload [post]
 func (a *App) uploadFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 
@@ -74,7 +74,7 @@ func (a *App) uploadFile(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {file} file "File content"
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Internal server error"
-// @Router /files/download [post]
+// @Router /download [get]
 func (a *App) downloadFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	f := models.FileDownloadRequest{}
