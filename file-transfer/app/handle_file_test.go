@@ -33,6 +33,8 @@ func TestFileIntegrationTests(t *testing.T) {
 		resp, err := http.Post(server.URL+"/file", "application/json", reader)
 		assert.NoError(t, err)
 
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
 		var actual models.File
 		err = json.NewDecoder(resp.Body).Decode(&actual)
 		assert.NoError(t, err)
@@ -58,6 +60,8 @@ func TestFileIntegrationTests(t *testing.T) {
 		resp, err := http.Get(server.URL + "/file/" + expected.FileID.Hex())
 		assert.NoError(t, err)
 
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
 		var actual models.File
 		err = json.NewDecoder(resp.Body).Decode(&actual)
 		assert.NoError(t, err)
@@ -79,6 +83,8 @@ func TestFileIntegrationTests(t *testing.T) {
 		// Get all files
 		resp, err := http.Get(server.URL + "/files")
 		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var actual []models.File
 		data, err := io.ReadAll(resp.Body)
@@ -119,6 +125,8 @@ func TestFileIntegrationTests(t *testing.T) {
 		// Get file
 		resp, err = http.Get(server.URL + "/file/" + initial.FileID.Hex())
 		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var actual models.File
 		err = json.NewDecoder(resp.Body).Decode(&actual)
