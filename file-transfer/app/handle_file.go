@@ -67,6 +67,10 @@ func (a *App) getFile(w http.ResponseWriter, r *http.Request) {
 	f := models.File{FileID: id}
 	f, err = db.GetFile(&ctx, a.MongoCollection, f)
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			respondWithError(w, http.StatusNotFound, "File not found")
+			return
+		}
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -91,6 +95,10 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(files) == 0 {
+		respondWithError(w, http.StatusNotFound, "No files found")
+		return
+	}
 	respondWithJSON(w, http.StatusOK, files)
 }
 
@@ -149,6 +157,10 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	if err := db.UpdateFile(&ctx, a.MongoCollection, f); err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			respondWithError(w, http.StatusNotFound, "File not found")
+			return
+		}
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -172,6 +184,10 @@ func (a *App) deleteFile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := bson.ObjectIDFromHex(vars["file_id"])
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			respondWithError(w, http.StatusNotFound, "File not found")
+			return
+		}
 		respondWithError(w, http.StatusBadRequest, "Invalid file ID")
 		return
 	}
