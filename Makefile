@@ -1,6 +1,6 @@
 MAKEFLAGS += --silent
 
-all: test build run
+all: install test build run
 
 # ADD YOUR MICROSERVICE FOLDER HERE
 SERVICES=file-encryption file-transfer accounts
