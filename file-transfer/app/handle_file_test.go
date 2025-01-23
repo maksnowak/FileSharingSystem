@@ -20,6 +20,7 @@ func TestFileIntegrationTests(t *testing.T) {
 	defer KillDatabase()
 
 	t.Run("it should create and return file", func(t *testing.T) {
+		defer CleanDatabase(t, a.MongoCollection)
 		server := httptest.NewServer(a.Server.Handler)
 		expected := models.File{
 			FileName: "test.txt",
@@ -34,7 +35,7 @@ func TestFileIntegrationTests(t *testing.T) {
 		resp, err := http.Post(server.URL+"/file", "application/json", reader)
 		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 		var actual models.File
 		err = json.NewDecoder(resp.Body).Decode(&actual)
@@ -57,6 +58,7 @@ func TestFileIntegrationTests(t *testing.T) {
 		// Create files
 		for i := 0; i < 3; i++ {
 			file.FileName = fmt.Sprintf("test%d.txt", i)
+			file.Path = fmt.Sprintf("path/test%d.txt", i)
 			body, err := json.Marshal(file)
 			assert.NoError(t, err)
 
@@ -64,7 +66,7 @@ func TestFileIntegrationTests(t *testing.T) {
 			resp, err := http.Post(server.URL+"/file", "application/json", reader)
 			assert.NoError(t, err)
 
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			assert.Equal(t, http.StatusCreated, resp.StatusCode)
 		}
 
 		// Get all files
@@ -189,7 +191,7 @@ func TestFileIntegrationTests(t *testing.T) {
 		resp, err := http.Post(server.URL+"/file", "application/json", reader)
 		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 		reqBody, err = json.Marshal(file2)
 		assert.NoError(t, err)

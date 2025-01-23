@@ -20,7 +20,7 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Param			file	body		models.File	true	"File object to create"
-//	@Success		200		{object}	models.File	"Created file object"
+//	@Success		201		{object}	models.File	"Created file object"
 //	@Failure		400		{string}	string		"Invalid request payload"
 //	@Failure		500		{string}	string		"Internal server error"
 //	@Router			/files [post]
