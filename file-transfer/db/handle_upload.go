@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"file-transfer/models"
 
@@ -14,6 +15,7 @@ import (
 
 func (bs *LocalBlobStorage) UploadFile(ctx context.Context, f models.FileData) (string, error) {
 	path := fmt.Sprintf("%s/%s/%s", bs.rootPath, f.UserID, f.Path)
+	os.MkdirAll(filepath.Dir(path), os.ModePerm)
 	file, err := os.Create(path)
 	if err != nil {
 		return "", err

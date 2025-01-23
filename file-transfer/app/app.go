@@ -34,7 +34,8 @@ func (a *App) Initialize(ctx *context.Context) {
 	storageType := os.Getenv("STORAGE_TYPE")
 
 	if storageType == "local" {
-		a.BlobStorage, _ = db.InitLocalBlobStorage("files")
+		path := os.Getenv("LOCAL_STORAGE_PATH")
+		a.BlobStorage, _ = db.InitLocalBlobStorage(path)
 	} else {
 		a.BlobStorage, _ = db.InitAzureBlobStorage("files")
 	}
