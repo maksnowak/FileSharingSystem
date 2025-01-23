@@ -37,7 +37,8 @@ func GetAllFiles(ctx *context.Context, collection *mongo.Collection) ([]models.F
 func GetFile(ctx *context.Context, collection *mongo.Collection, f models.File) (models.File, error) {
 	filter := bson.M{"_id": f.FileID}
 
-	err := collection.FindOne(*ctx, filter).Decode(f)
+	res := collection.FindOne(*ctx, filter)
+	err := res.Decode(&f)
 	if err != nil {
 		return f, err
 	}
