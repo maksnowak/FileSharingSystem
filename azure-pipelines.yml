@@ -21,6 +21,10 @@ stages:
         parameters:
           appName: "file_encryption"
           directory: "file-encryption/"
+      - template: templates/go-test.yml
+        parameters:
+          appName: "accounts"
+          directory: "accounts/"
 
   - stage: DockerBuildAndPush
     dependsOn: BuildAndTest
@@ -34,6 +38,10 @@ stages:
         parameters:
           appName: "file_encryption"
           directory: "file-encryption/"
+      - template: templates/docker-build-push.yml
+        parameters:
+          appName: "accounts"
+          directory: "accounts/"
 
   - stage: Deploy
     dependsOn: DockerBuildAndPush
@@ -47,3 +55,7 @@ stages:
         parameters:
           appName: "file_encryption"
           directory: "file-encryption/"
+      - template: templates/deploy.yml
+        parameters:
+          appName: "accounts"
+          directory: "accounts/"
