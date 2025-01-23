@@ -40,7 +40,7 @@ docker compose up --build
 ```
 
 ## Wymagania funkcjonalne:
-**Wymagania obowiązkowe:**
+__**Wymagania obowiązkowe:**
 - Użytkownik będzie w stanie utworzyć własne konto
 - Użytkownik będzie w stanie zalogować się na swoje konto, zmienić hasło i je usunąć
 - Użytkownik będzie w stanie wysyłać i pobierać pliki
@@ -76,11 +76,11 @@ docker compose up --build
 - Udostępnienie plików innemu użytkownikowi
 - Zmiana nazwy pliku
 - Usunięcie pliku
-- Szyfrowanie folderów/plików
-- Wyszukiwanie plików po metadanych lub zawartości
+- Szyfrowanie plików (opcjonalnie folderów)
+- Wyszukiwanie plików po metadanych (opcjonalnie zawartości)
 - Kategoryzacja/tagowanie plików
-- Podejrzenie własnej ewidencji
-- Wyeksportowanie/Zaimportowanie stanu dysku (np. żeby nie stracić danych podczas zmiany serwera)
+- (opcjonalnie) Podejrzenie własnej ewidencji
+- (opcjonalnie) Wyeksportowanie/Zaimportowanie stanu dysku (np. żeby nie stracić danych podczas zmiany serwera)
 
 ## Architektura:
 
