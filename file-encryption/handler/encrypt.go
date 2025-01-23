@@ -43,16 +43,24 @@ func Encrypt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cipherText, err := encrypt(plainText, password)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	_, _ = w.Write(cipherText)
+}
+
+func encrypt(plainText []byte, password string) (cipherText []byte, err error) {
 	key := sha256.Sum256([]byte(password))
 	block, _ := aes.NewCipher(key[:])
 	gcm, _ := cipher.NewGCM(block)
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-	cipherText := gcm.Seal(nonce, nonce, plainText, nil)
-
-	w.Header().Set("Content-Type", "application/octet-stream")
-	_, _ = w.Write(cipherText)
+	cipherText = gcm.Seal(nonce, nonce, plainText, nil)
+	return cipherText, nil
 }
