@@ -25,6 +25,10 @@ stages:
         parameters:
           appName: "accounts"
           directory: "accounts/"
+      - template: templates/vitest.yml
+        parameters:
+          appName: "frontend"
+          directory: "frontend/"
 
   - stage: DockerBuildAndPush
     dependsOn: BuildAndTest

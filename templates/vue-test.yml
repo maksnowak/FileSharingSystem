@@ -1,0 +1,14 @@
+parameters:
+  appName: ""
+  directory: ""
+
+jobs:
+  - job: Test_${{ parameters.appName }}
+    displayName: "Test ${{ parameters.appName }}"
+    steps:
+      - script: |
+          cd ${{ parameters.directory }}
+          npm install
+          npm run test:unit
+          npm run lint
+        displayName: "Build and test ${{ parameters.appName }}"
