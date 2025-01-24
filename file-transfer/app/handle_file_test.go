@@ -203,7 +203,7 @@ func TestFileIntegrationTests(t *testing.T) {
 		resp, err = http.Post(server.URL+"/file", "application/json", reader)
 
 		// Get all files
-		resp, err = http.Get(server.URL + "/files/user/123")
+		resp, err = http.Get(server.URL + "/file/user/123")
 		assert.NoError(t, err)
 
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
