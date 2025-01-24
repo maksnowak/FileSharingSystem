@@ -39,31 +39,34 @@ Na dowolnym systemie wspierającym konteneryzację Docker można uruchomić cał
 docker compose up --build
 ```
 
-## Wymagania funkcjonalnie:
-
+## Wymagania funkcjonalne:
+__**Wymagania obowiązkowe:**
 - Użytkownik będzie w stanie utworzyć własne konto
 - Użytkownik będzie w stanie zalogować się na swoje konto, zmienić hasło i je usunąć
 - Użytkownik będzie w stanie wysyłać i pobierać pliki
 - Użytkownik będzie w stanie udostępniać pliki innemu użytkownikowi
 - Użytkownik będzie w stanie tworzyć pliki prywatne, które są niewidoczne dla innych użytkowników
 - Użytkownik będzie w stanie kategoryzować pliki oraz nadawać im tagi
+- Użytkownik będzie w stanie szyfrować pliki hasłem
 - Użytkownik będzie w stanie wyszukiwać pliki w bazie (do których ma dostęp)
     - po nazwie
     - po typie (.pdf, .zip, .txt)
-    - po zawartości (w przypadku plików tekstowych)
     - po rozmiarze
     - po dacie modyfikacji
     - po dacie utworzenia
 - Użytkownik będzie w stanie wykonywać podstawowe operacje na plikach, takie jak:
     - usunięcie pliku
     - zmienianie nazwy
-    - zmiana miejsca w dysku
-- Użytkownik będzie w stanie tworzyć foldery w strukturze drzewiastej i umieszczać tam pliki
-- Użytkownik będzie w stanie szyfrować pliki/foldery hasłem
+
+**Wymagania opcjonalne:**
 - Użytkownik będzie w stanie zobaczyć własną ewidencję (ślad cyfrowego aktywności tzn. ile było pobrań, kiedy pobrał)
+- Użytkownik będzie w stanie wyszukiwać pliki w bazie (do których ma dostęp) po zawartości (w przypadku plików tekstowych)
+- Użytkownik będzie w stanie tworzyć foldery w strukturze drzewiastej i umieszczać tam pliki
+- Użytkownik będzie w stanie szyfrować foldery hasłem
 - Użytkownik będzie w stanie wyeksportować stan swojego dysku (stan obejmuje strukturę dysku, zaszyfrowane pliki, tagi
   oraz kategorie)
 - Użytkownik będzie w stanie zaimportować stan dysku z pliku
+- Użytkownik będzie w stanie zmienić miejsce przechowywania pliku na dysku
 
 ## Use Cases:
 
@@ -73,11 +76,11 @@ docker compose up --build
 - Udostępnienie plików innemu użytkownikowi
 - Zmiana nazwy pliku
 - Usunięcie pliku
-- Szyfrowanie folderów/plików
-- Wyszukiwanie plików po metadanych lub zawartości
+- Szyfrowanie plików (opcjonalnie folderów)
+- Wyszukiwanie plików po metadanych (opcjonalnie zawartości)
 - Kategoryzacja/tagowanie plików
-- Podejrzenie własnej ewidencji
-- Wyeksportowanie/Zaimportowanie stanu dysku (np. żeby nie stracić danych podczas zmiany serwera)
+- (opcjonalnie) Podejrzenie własnej ewidencji
+- (opcjonalnie) Wyeksportowanie/Zaimportowanie stanu dysku (np. żeby nie stracić danych podczas zmiany serwera)
 
 ## Architektura:
 
