@@ -96,7 +96,7 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(files) == 0 {
-		respondWithError(w, http.StatusNotFound, "No files found")
+		respondWithError(w, http.StatusNoContent, string(json.RawMessage("[]")))
 		return
 	}
 	respondWithJSON(w, http.StatusOK, files)
@@ -123,6 +123,10 @@ func (a *App) getFilesByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(files) == 0 {
+		respondWithError(w, http.StatusNoContent, string(json.RawMessage("[]")))
+		return
+	}
 	respondWithJSON(w, http.StatusOK, files)
 }
 
@@ -148,7 +152,7 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f := models.File{FileID: id}
+	f := models.File{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&f); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload:"+err.Error())
@@ -156,7 +160,9 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := db.UpdateFile(&ctx, a.MongoCollection, f); err != nil {
+  f.FileID = id
+	f, err = db.UpdateFile(&ctx, a.MongoCollection, f)
+  if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			respondWithError(w, http.StatusNotFound, "File not found")
 			return

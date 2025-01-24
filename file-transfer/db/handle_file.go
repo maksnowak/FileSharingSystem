@@ -63,7 +63,7 @@ func GetFilesByUserID(ctx *context.Context, collection *mongo.Collection, userID
 	return files, nil
 }
 
-func UpdateFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {
+func UpdateFile(ctx *context.Context, collection *mongo.Collection, f models.File) (models.File, error) {
 	filter := bson.M{"_id": f.FileID}
 
 	update := bson.M{
@@ -77,12 +77,13 @@ func UpdateFile(ctx *context.Context, collection *mongo.Collection, f models.Fil
 		},
 	}
 
-	err := collection.FindOneAndUpdate(*ctx, filter, update).Decode(f)
+	res := collection.FindOneAndUpdate(*ctx, filter, update)
+  err := res.Decode(&f)
 	if err != nil {
-		return err
+		return f, err
 	}
 
-	return nil
+	return f, nil
 }
 
 func DeleteFile(ctx *context.Context, collection *mongo.Collection, f models.File) error {

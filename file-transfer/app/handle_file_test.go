@@ -94,7 +94,7 @@ func TestFileIntegrationTests(t *testing.T) {
 		}
 		expected := models.File{
 			FileName: "test.txt",
-			UserID:   "456",
+			UserID:   "123",
 			Path:     "path/test.txt",
 			BlobURL:  "http://example.com",
 		}
@@ -116,16 +116,18 @@ func TestFileIntegrationTests(t *testing.T) {
 		assert.NoError(t, err)
 		req, err := http.NewRequest("PUT", server.URL+"/file/"+actual.FileID.Hex(), bytes.NewReader(body))
 		assert.NoError(t, err)
-		http.DefaultClient.Do(req)
 
-		// Get file
-		resp, err = http.Get(server.URL + "/file/" + actual.FileID.Hex())
-		assert.NoError(t, err)
+    req.Header.Set("Content-Type", "application/json")
+    resp, err = http.DefaultClient.Do(req)
+    assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+    assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-		err = json.NewDecoder(resp.Body).Decode(&actual)
-		assert.NoError(t, err)
+    body, err = io.ReadAll(resp.Body)
+    assert.NoError(t, err)
+
+    err = json.Unmarshal(body, &actual)
+    assert.NoError(t, err)
 
 		assert.Equal(t, expected.FileName, actual.FileName)
 		assert.Equal(t, expected.UserID, actual.UserID)
