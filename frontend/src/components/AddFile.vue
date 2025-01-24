@@ -87,6 +87,7 @@ export default {
 
       try {
         let fileData = this.selectedFile;
+        let fileName = this.selectedFile.name;
         let passwordSalt = null;
         let passwordHash = null;
         // Encrypt the file if password is provided
@@ -107,6 +108,7 @@ export default {
           },
           body: JSON.stringify({
             "data": fileData,
+            "file_name": fileName,
             "has_access": [],
             "id": Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), x=>(('00'+x.toString(16)).slice(-2))).join(''),
             "tags": this.tags,
