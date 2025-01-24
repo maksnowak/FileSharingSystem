@@ -5,6 +5,6 @@ import AccountDashboard from "@/components/AccountDashboard.vue";
 
 <template>
     <main>
-        Hello world
+        <AccountDashboard />
     </main>
 </template>
