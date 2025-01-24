@@ -114,7 +114,7 @@ func TestFileIntegrationTests(t *testing.T) {
 		// Update file
 		body, err = json.Marshal(expected)
 		assert.NoError(t, err)
-		req, err := http.NewRequest("PUT", server.URL+"/files"+actual.FileID.Hex(), bytes.NewReader(body))
+		req, err := http.NewRequest("PUT", server.URL+"/file/"+actual.FileID.Hex(), bytes.NewReader(body))
 		assert.NoError(t, err)
 		http.DefaultClient.Do(req)
 

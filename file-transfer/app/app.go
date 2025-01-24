@@ -41,7 +41,14 @@ func (a *App) Initialize(ctx *context.Context) {
 	}
 
 	logMiddleware := NewLogMiddleware(a.Logger)
+  corsMiddleware := NewCorsMiddleware(
+    []string{"http://localhost:8080"}, // Allowed origins
+    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},     // Allowed methods
+    []string{"Content-Type", "Authorization"},              // Allowed headers
+    true,
+  )
 	a.Router.Use(logMiddleware.Func())
+  a.Router.Use(corsMiddleware.Func())
 
 	a.initRoutes()
 }
