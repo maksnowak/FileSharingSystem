@@ -5,6 +5,7 @@ import Password from 'primevue/password';
 import Button from 'primevue/button';
 import SharedFileComponent from '@/components/SharedFileComponent.vue';
 import { ProgressSpinner } from 'primevue';
+import { userStore } from "@/user";
 
 interface SharedFileData {
   id: string;
@@ -26,6 +27,9 @@ const showFileInfoDialog = ref(false);
 const password = ref('');
 const searchQuery = ref('');
 
+const store = userStore();
+const userId = computed(() => store.getUser?.id);
+
 const filteredFiles = computed(() => {
   if (!searchQuery.value) return files.value;
   return files.value.filter(file =>
@@ -35,10 +39,17 @@ const filteredFiles = computed(() => {
 
 const fetchSharedFiles = async () => {
   try {
-    // TODO: Fetch shared files from the server
+    loading.value = true;
     const response = await fetch('http://localhost:8080/files');
     if (!response.ok) throw new Error('Failed to fetch files');
-    files.value = await response.json();
+
+    const allFiles = await response.json();
+
+    // Filter files where current user has access
+    files.value = allFiles.filter(file =>
+      file.has_access.includes(userId.value)
+    );
+
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load files';
   } finally {
@@ -57,6 +68,11 @@ const handleFileClick = (file: SharedFileData) => {
   error.value = null;
 };
 
+const hashFilePassword = async (password: string) => {
+  let hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+  return Array.prototype.map.call(new Uint8Array(hashBuffer), x=>(('00'+x.toString(16)).slice(-2))).join('');
+};
+
 const handlePasswordSubmit = async () => {
   if (!selectedFile.value) return;
 
@@ -64,19 +80,34 @@ const handlePasswordSubmit = async () => {
   error.value = '';
 
   try {
-    // TODO: Replace with real SHA-256 hash comparison
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (password.value !== "password") {
+    const hashedPassword = await hashFilePassword(password.value);
+    if (hashedPassword !== selectedFile.value.passwordHash) {
       throw new Error('Invalid password');
     }
 
     showPasswordDialog.value = false;
     showFileInfoDialog.value = true;
   } catch (e) {
-    error.value = 'Invalid password';
+    error.value = e instanceof Error ? e.message : 'Invalid password';
   } finally {
     loading.value = false;
     password.value = '';
+  }
+};
+
+const handleDownload = async () => {
+  if (!selectedFile.value?.id) return;
+
+  try {
+    const response = await fetch(`http://localhost:8080/files/${selectedFile.value.id}`);
+    if (response.ok) {
+      toast.add({severity: 'success', summary: 'File downloaded successfully', life: 3000});
+      showFileInfoDialog.value = false;
+    } else {
+      toast.add({severity: 'error', summary: 'Failed to download file', life: 3000});
+    }
+  } catch (error) {
+    toast.add({severity: 'error', summary: 'Error downloading file', life: 3000});
   }
 };
 </script>
@@ -167,12 +198,12 @@ const handlePasswordSubmit = async () => {
         </div>
       </div>
       <template #footer>
-        <!--TODO: <Button
+        <Button
           label="Download Encrypted"
           icon="pi pi-download"
           @click="handleDownload"
           class="p-button-primary"
-        /> -->
+        />
         <Button
           label="Close"
           class="p-button-text"
