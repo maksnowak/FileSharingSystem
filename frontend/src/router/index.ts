@@ -2,13 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import CreateAccount from '@/views/CreateAccount.vue'
+import AccountView from '@/views/AccountView.vue'
 import { userStore } from "@/user";
 
 const routes = [
-  { path: '/', redirect: '/login', meta: { requiresRedirect: true } },
+  { path: '/', redirect: '/home', meta: { requiresRedirect: true } },
   { path: '/home', component: Home, meta: { requiresAuth: true } },
+  { path: '/shared', component: Home, meta: { requiresAuth: true } },
   { path: '/login', component: Login },
-  { path: '/create-account', component: CreateAccount }
+  { path: '/create-account', component: CreateAccount },
+  { path: '/account', component: AccountView, meta: { requiresAuth: true } }
 ];
 
 const router = createRouter({

@@ -6,14 +6,16 @@ import (
 	"file-encryption/handler"
 	"flag"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 //	@title			File Encryption API
@@ -34,6 +36,14 @@ func main() {
 		r.Use(middleware.Heartbeat("/ping"))
 		r.Use(middleware.Recoverer)
 		r.Use(middleware.Logger)
+		r.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   []string{"http://localhost*", "https://localhost*"},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			ExposedHeaders:   []string{"Link"},
+			AllowCredentials: false,
+			MaxAge:           300, // Maximum value not ignored by any of major browsers
+		}))
 
 		r.Post("/encrypt", handler.Encrypt)
 		r.Post("/decrypt", handler.Decrypt)

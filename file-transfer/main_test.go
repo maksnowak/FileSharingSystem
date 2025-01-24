@@ -2,8 +2,6 @@ package main
 
 import "testing"
 
-func TestSanity(t *testing.T) {
-	if false {
-		t.Fatal("expected true; got false")
-	}
+func TestAll(t *testing.T) {
+	t.Log("Setting up the router and connecting to the database, nothing to test here")
 }
