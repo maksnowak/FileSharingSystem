@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import FileComponent from '@/components/FileComponent.vue';
 import { ProgressSpinner } from 'primevue';
+import AddFile from '@/components/AddFile.vue';
 
 interface FileData {
   id: string;
@@ -40,8 +41,13 @@ onMounted(() => {
       <ProgressSpinner />
     </div>
     
-    <div v-else-if="error" class="error-message">
+    <!-- <div v-else-if="error" class="error-message">
       {{ error }}
+    </div> -->
+
+    <div v-else-if="files.length === 0" class="no-files-message">
+      No files found. Why not add one?
+      <AddFile />
     </div>
     
     <div v-else class="files-grid">
@@ -67,6 +73,11 @@ onMounted(() => {
 
 .error-message {
   color: red;
+  text-align: center;
+  padding: 2rem;
+}
+
+.no-files-message {
   text-align: center;
   padding: 2rem;
 }
