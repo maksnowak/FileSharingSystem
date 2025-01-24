@@ -11,7 +11,7 @@ interface SharedFileProps {
 }
 
 const props = defineProps<{
-  file: FileProps
+  file: SharedFileProps
 }>();
 
 const emit = defineEmits(['fileSelect']);

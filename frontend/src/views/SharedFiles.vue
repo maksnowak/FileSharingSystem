@@ -6,6 +6,7 @@ import Button from 'primevue/button';
 import SharedFileComponent from '@/components/SharedFileComponent.vue';
 import { ProgressSpinner } from 'primevue';
 import { userStore } from "@/user";
+import { useToast } from 'primevue';
 
 interface SharedFileData {
   id: string;
@@ -18,21 +19,22 @@ interface SharedFileData {
   encryptedContent: Uint8Array;
 }
 
-const files = ref<SharedFile[]>([]);
+const files = ref<SharedFileData[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
-const selectedFile = ref<SharedFile | null>(null);
+const selectedFile = ref<SharedFileData | null>(null);
 const showPasswordDialog = ref(false);
 const showFileInfoDialog = ref(false);
 const password = ref('');
 const searchQuery = ref('');
+const toast = useToast();
 
 const store = userStore();
 const userId = computed(() => store.getUser?.id);
 
 const filteredFiles = computed(() => {
   if (!searchQuery.value) return files.value;
-  return files.value.filter(file =>
+  return files.value.filter((file: SharedFileData) =>
     file.file_name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
@@ -44,13 +46,15 @@ const fetchSharedFiles = async () => {
     if (!response.ok) throw new Error('Failed to fetch files');
 
     const allFiles = await response.json();
+    console.log('API Response:', allFiles); // Debug log
 
     // Filter files where current user has access
-    files.value = allFiles.filter(file =>
+    files.value = allFiles.filter((file: SharedFileData) =>
       file.has_access.includes(userId.value)
     );
 
   } catch (e) {
+    console.error('Fetch error:', e); // Debug log
     error.value = e instanceof Error ? e.message : 'Failed to load files';
   } finally {
     loading.value = false;
