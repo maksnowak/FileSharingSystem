@@ -14,6 +14,8 @@ services:
       - "7780:7780"
     environment:
       - APP_ENV=prod
+    volumes:
+      - ./file-encryption/.env:/app/config/.env
   file-transfer:
     depends_on:
       - mongodb
@@ -22,7 +24,8 @@ services:
     image: pis/file-transfer:0.1
     ports:
       - "8080:8080"
-    env_file: .env
+    volumes:
+      - ./file-transfer/.env:/app/config/.env
   accounts:
     build: accounts
     container_name: accounts
@@ -31,11 +34,13 @@ services:
       - "2024:2024"
     environment:
       - APP_ENV=prod
-    env_file: .env
+    volumes:
+      - ./accounts/.env:/app/config/.env
   frontend:
     build: frontend
     container_name: frontend
     image: frontend:0.1
     ports:
       - "80:80"
-    env_file: .env
+    volumes:
+      - ./frontend/.env:/app/config/.env
