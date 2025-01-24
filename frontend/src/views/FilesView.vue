@@ -41,9 +41,9 @@ onMounted(() => {
       <ProgressSpinner />
     </div>
     
-    <!-- <div v-else-if="error" class="error-message">
+    <div v-else-if="error" class="error-message">
       {{ error }}
-    </div> -->
+    </div>
 
     <div v-else-if="files.length === 0" class="no-files-message">
       No files found. Why not add one?
