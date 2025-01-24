@@ -104,14 +104,14 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 
 // getFilesByUser godoc
 //
-//  @Summary    Retrieve files by user
-//  @Description Retrieve information about all files uploaded by a specific user
-//  @Tags       files
-//  @Produce    json
-//  @Param      user_id path    string      true    "User ID"
-//  @Success    200     {array}     models.File "Files uploaded by the user"
-//  @Failure    500     {string}    string      "Internal server error"
-//  @Router     /files/user/{user_id} [get]
+//	@Summary		Retrieve files by user
+//	@Description	Retrieve information about all files uploaded by a specific user
+//	@Tags			files
+//	@Produce		json
+//	@Param			user_id	path		string		true	"User ID"
+//	@Success		200		{array}		models.File	"Files uploaded by the user"
+//	@Failure		500		{string}	string		"Internal server error"
+//	@Router			/files/user/{user_id} [get]
 func (a *App) getFilesByUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
