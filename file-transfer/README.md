@@ -61,7 +61,7 @@ To run the microservice execute `make run` command in project _file-transfer_ di
 
 To run tests execute `make test` command in project _file-transfer_ directory.
 
-### Exapmle usage
+### Example usage
 
 To upload file you need to send POST request to `/files` endpoint with file in body.
 Example request using `curl`:
