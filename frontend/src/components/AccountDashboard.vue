@@ -105,13 +105,25 @@ const onDelete = async (event: FormSubmitEvent) => {
     return;
   }
   console.log("Starting deletion procedure...");
-  // TODO: Implement file deletion and remove the if statement below
+  // TODO: Remove this when file-transfer starts working
   if (1 == 1) {
     console.log("Not yet implemented");
     toast.add({severity: 'error', summary: 'Operation not yet implemented', life: 3000});
     return;
   }
-  // TODO: Delete user files first
+  // Delete user files first
+  let filesToDelete = user._value.ownedFiles;
+  for (const file of filesToDelete) {
+    console.log("Deleting "+file);
+    let response = await fetch ("http://localhost:8080/"+file, {
+      method: "DELETE"
+    });
+    if (!response.ok) {
+      this.toast.add({severity: 'error', summary: 'Could not delete files.', life: 3000});
+      return;
+    }
+  }
+
   let response = fetch(`http://localhost:2024/accounts/`+user._value.id, {method: 'DELETE'})
   if ((await response).status === 200) {
     await store.clearUser();
