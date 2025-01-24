@@ -45,7 +45,7 @@ func TestLocalStorage(t *testing.T) {
 
 		writer.Close()
 
-		resp, err := http.Post(server.URL+"/file/upload", writer.FormDataContentType(), body)
+		resp, err := http.Post(server.URL+"/upload", writer.FormDataContentType(), body)
 		assert.NoError(t, err)
 
 		var actual models.FileResponse
@@ -56,7 +56,7 @@ func TestLocalStorage(t *testing.T) {
 		assert.Equal(t, expected.Path, actual.Path)
 		assert.Equal(t, expected.URL, actual.URL)
 
-		resp, err = http.Post(server.URL+"/file/download", "application/json", strings.NewReader(`{"user_id":"123","path":"test.txt"}`))
+		resp, err = http.Post(server.URL+"/download", "application/json", strings.NewReader(`{"user_id":"123","path":"test.txt"}`))
 		assert.NoError(t, err)
 
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
