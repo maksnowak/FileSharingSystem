@@ -1,0 +1,80 @@
+info:
+  contact: {}
+  description: Webserver serving file encryption/decryption capabilities.
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  title: File Encryption API
+  version: "0.1"
+paths:
+  /decrypt:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Decrypt a file
+      parameters:
+      - description: Encrypted file which contents to decrypt
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Hash of the password that protect the file
+        in: formData
+        name: password-hash
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Decrypted plain file
+          schema:
+            type: integer
+        "400":
+          description: Invalid request body
+          schema:
+            type: integer
+        "403":
+          description: Server could not decrypt the file on account on bad password
+          schema:
+            type: integer
+        "500":
+          description: Server could not read the file
+          schema:
+            type: integer
+      tags:
+      - files
+  /encrypt:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Encrypt a file
+      parameters:
+      - description: File which contents to encrypt
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Hash of the password that protect the file
+        in: formData
+        name: password-hash
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Encrypted file
+          schema:
+            type: integer
+        "400":
+          description: Invalid request body
+          schema:
+            type: integer
+        "500":
+          description: Server could not encrypt the file
+          schema:
+            type: integer
+      tags:
+      - files
+swagger: "2.0"
