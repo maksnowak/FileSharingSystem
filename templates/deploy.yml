@@ -4,7 +4,7 @@ parameters:
   directory: ""
 
 jobs:
-  - job: SSH_and_Deploy
+  - job: SSH_and_Deploy_{{ parameters.appName }}
     displayName: SSH to VM and Deploy
     steps:
       - task: InstallSSHKey@0
