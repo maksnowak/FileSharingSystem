@@ -19,24 +19,41 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/files": {
-            "get": {
-                "description": "Retrieve information about all existing files",
-                "produces": [
+        "/download": {
+            "post": {
+                "description": "Download a file with path",
+                "consumes": [
                     "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
                 ],
                 "tags": [
                     "files"
                 ],
-                "summary": "Retrieve all files",
+                "summary": "Download a file",
+                "parameters": [
+                    {
+                        "description": "File metadata",
+                        "name": "file",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.FileDownloadRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Every existing file",
+                        "description": "File content",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.File"
-                            }
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -46,7 +63,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/file": {
             "post": {
                 "description": "Create a new file record in the database",
                 "consumes": [
@@ -71,7 +90,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Created file object",
                         "schema": {
                             "$ref": "#/definitions/models.File"
@@ -92,7 +111,45 @@ const docTemplate = `{
                 }
             }
         },
-        "/files/{file_id}": {
+        "/file/user/{user_id}": {
+            "get": {
+                "description": "Retrieve information about all files uploaded by a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "files"
+                ],
+                "summary": "Retrieve files by user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Files uploaded by the user",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.File"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/file/{file_id}": {
             "get": {
                 "description": "Get information about a file by its ID",
                 "produces": [
@@ -225,17 +282,94 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/files": {
+            "get": {
+                "description": "Retrieve information about all existing files",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "files"
+                ],
+                "summary": "Retrieve all files",
+                "responses": {
+                    "200": {
+                        "description": "Every existing file",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.File"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/upload": {
+            "post": {
+                "description": "Upload file with path and content",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "files"
+                ],
+                "summary": "Upload a file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JSON metadata with path",
+                        "name": "metadata",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File content",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FileResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "models.File": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                "blob_url": {
+                    "type": "string"
                 },
                 "file_name": {
                     "type": "string"
@@ -250,11 +384,42 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "path": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.FileDownloadRequest": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.FileResponse": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
                 },
                 "user_id": {
                     "type": "string"
