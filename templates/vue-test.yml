@@ -9,6 +9,7 @@ jobs:
       - script: |
           cd ${{ parameters.directory }}
           npm install
+          npm run build
           npm run test:unit
           npm run lint
         displayName: "Build and test ${{ parameters.appName }}"
