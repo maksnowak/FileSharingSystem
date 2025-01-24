@@ -20,7 +20,7 @@ import (
 // @Produce json
 // @Param metadata formData string true "JSON metadata with path"
 // @Param file formData file true "File content"
-// @Success 200 {object} models.FileDataResponse
+// @Success 200 {object} models.FileResponse
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Internal server error"
 // @Router /upload [post]
