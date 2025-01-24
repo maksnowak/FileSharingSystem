@@ -1,4 +1,11 @@
 <template>
+  <Button
+    type="button"
+    label="Open Upload Form"
+    icon="pi pi-upload"
+    class="p-button-primary"
+    @click="showPopup = true"
+  />
   <div v-if="showPopup" class="popup-overlay">
     <div class="popup-content">
       <h3>Upload File</h3>
@@ -100,7 +107,11 @@ export default {
         // Upload file
         console.log('Uploading file:', fileData);
         console.log('Tags:', this.tags);
-        const response = await fetch('http://localhost:8080/files', {
+        const fileID = Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), x=>(('00'+x.toString(16)).slice(-2))).join('');
+        let user = userStore().getUser;
+        console.log(user);
+        const uid = user.id;
+        let response = await fetch('http://localhost:8080/files', {
           method: "POST",
           // mode: 'no-cors',
           headers: {
@@ -110,9 +121,9 @@ export default {
             "data": fileData,
             "file_name": fileName,
             "has_access": [],
-            "id": Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), x=>(('00'+x.toString(16)).slice(-2))).join(''),
+            "id": fileID,
             "tags": this.tags,
-            "user_id": userStore().getUser.id,
+            "user_id": uid,
             "password_salt": passwordSalt,
             "passwod_hash": passwordHash
           })
@@ -122,11 +133,33 @@ export default {
         } else {
           this.toast.add({ severity: 'success', summary: 'Success', detail: 'File uploaded successfully!', life: 3000 });
         }
+
+        // set user info about file
+        user.ownedFiles.push(fileID);
+        userStore().setUser(user);
+        response = await fetch('http://localhost:2024/accounts/'+uid, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: user.email,
+            passwordHash: user.passwordHash,
+            passwordSalt: user.passwordSalt,
+            sharedFiles: user.sharedFiles,
+            ownedFiles: user.ownedFiles
+          })
+        });
+        if (!(await response).ok) {
+          this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to update user.', life: 3000 });
+          console.log("Update failed: " + await response.text());
+        } else {
+          console.log("User updated successfully");
+        }
         // Reset the form
         this.resetForm();
       } catch (error) {
         console.error('Error uploading file:', error);
-        this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload file.', life: 3000 });
       }
     },
     async encryptFile(file, passwordHash) {
