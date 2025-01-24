@@ -14,7 +14,7 @@ import (
 )
 
 func (bs *LocalBlobStorage) UploadFile(ctx context.Context, f models.FileData) (string, error) {
-	path := fmt.Sprintf("%s/%s/%s", bs.rootPath, f.UserID, f.Path)
+  path := fmt.Sprintf("%s/%s/%s/%s", "http://localhost:8080", bs.rootPath, f.UserID, f.Path)
 	os.MkdirAll(filepath.Dir(path), os.ModePerm)
 	file, err := os.Create(path)
 	if err != nil {

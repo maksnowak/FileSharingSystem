@@ -26,7 +26,7 @@ func TestLocalStorage(t *testing.T) {
 		expected := models.FileResponse{
 			UserID: "123",
 			Path:   "test.txt",
-			URL:    "http://localhost:8080/files/test.txt",
+			URL:    "http://localhost:8080/files/123/test.txt",
 			Size:   13,
 		}
 
@@ -59,9 +59,12 @@ func TestLocalStorage(t *testing.T) {
 		resp, err = http.Post(server.URL+"/download", "application/json", strings.NewReader(`{"user_id":"123","path":"test.txt"}`))
 		assert.NoError(t, err)
 
+    respFile, err := io.ReadAll(resp.Body)
+    assert.NoError(t, err)
+
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 		assert.Equal(t, "attachment; filename=test.txt", resp.Header.Get("Content-Disposition"))
 		assert.Equal(t, "application/octet-stream", resp.Header.Get("Content-Type"))
-		assert.Equal(t, fileData, resp.Body)
+		assert.Equal(t, fileData, string(respFile))
 	})
 }
