@@ -11,7 +11,7 @@ It communicates with other services to store retrieve specific files.
 - [Docker](https://docs.docker.com/engine/install/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Usage
+## Configuration
 
 This microservice is dependent on MongoDB database so before starting the web server you need to provide connection configuration to MongoDB database.
 
@@ -19,29 +19,72 @@ This microservice is dependent on MongoDB database so before starting the web se
 
 You can run MongoDB locally with `docker compose` by using `docker compose run mongodb` command in project _file-transfer_ directory.
 Then you need to create `.env` file with MongoDB configuration.
-Example configuration:
+Example configuration for MongoDB with user `root` and password `example`:
 
 ```bash
-MONGODB_URI=mongodb://localhost:27017/
-MONGODB_DB_USER=root
-MONGODB_DB_PASSWORD=example
+MONGODB_URI=mongodb://root:example@localhost:27017/
 ```
 
 ### Connecting to existing instance
 
 Provide connection details in `.env` file.
 
-### Building and downloading packages
+### Connecting to Storage
+
+#### Azure Storage
+
+You need to specify `AZURE_STORAGE_ACCOUNT_NAME` and `AZURE_STORAGE_ACCOUNT_KEY` in `.env` file.
+Example configuration for Azure Storage:
 
 ```bash
-go mod download
-go mod build -o main
+AZURE_STORAGE_ACCOUNT_NAME=example
+AZURE_STORAGE_ACCOUNT_KEY=example
 ```
 
-### Running the project
+#### Local Storage
+
+Alternatively you can use local storage by providing `LOCAL_STORAGE_PATH` and `STORAGE_TYPE` in `.env` file.
+Example configuration for local storage:
 
 ```bash
-./main
+LOCAL_STORAGE_PATH=/tmp
+STORAGE_TYPE=local
 ```
 
-It should start web server on specified port and connect to MongoDB.
+## Usage
+
+### Running
+
+To run the microservice execute `make run` command in project _file-transfer_ directory.
+
+### Testing
+
+To run tests execute `make test` command in project _file-transfer_ directory.
+
+### Exapmle usage
+
+To upload file you need to send POST request to `/files` endpoint with file in body.
+Example request using `curl`:
+
+```bash
+curl -X POST "http://localhost:8080/file" \
+    -H "Content-Type: application/json" \
+    -d '{
+        "file_name": "test.txt",
+        "user_id": "123"
+    }'
+```
+
+In response you will receive file id which you can use to download file.
+
+To download file you need to send GET request to `/files/{file_id}` endpoint.
+Example request using `curl`:
+
+```bash
+curl -X GET "http://localhost:8080/file/123" \
+    -H "Content-Type: application/json"
+```
+
+### Swagger
+
+To access Swagger documentation go to `http://localhost:8080/swagger/index.html`.

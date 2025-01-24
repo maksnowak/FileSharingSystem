@@ -27,7 +27,7 @@ func (bs *LocalBlobStorage) UploadFile(ctx context.Context, f models.FileData) (
 		return "", err
 	}
 
-	return path, nil
+	return fmt.Sprintf("http://localhost:8080/%s", path), nil
 }
 
 func (bs *LocalBlobStorage) DownloadFile(ctx context.Context, userID string, path string) (*models.FileData, error) {

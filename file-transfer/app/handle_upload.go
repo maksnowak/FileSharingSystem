@@ -13,17 +13,17 @@ import (
 
 // uploadFile godoc
 //
-// @Summary Upload a file
-// @Description Upload file with path and content
-// @Tags files
-// @Accept multipart/form-data
-// @Produce json
-// @Param metadata formData string true "JSON metadata with path"
-// @Param file formData file true "File content"
-// @Success 200 {object} models.FileDataResponse
-// @Failure 400 {string} string "Invalid request"
-// @Failure 500 {string} string "Internal server error"
-// @Router /upload [post]
+//	@Summary		Upload a file
+//	@Description	Upload file with path and content
+//	@Tags			files
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			metadata	formData	string	true	"JSON metadata with path"
+//	@Param			file		formData	file	true	"File content"
+//	@Success		200			{object}	models.FileResponse
+//	@Failure		400			{string}	string	"Invalid request"
+//	@Failure		500			{string}	string	"Internal server error"
+//	@Router			/upload [post]
 func (a *App) uploadFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 
@@ -65,16 +65,16 @@ func (a *App) uploadFile(w http.ResponseWriter, r *http.Request) {
 
 // downloadFile godoc
 //
-// @Summary Download a file
-// @Description Download a file with path
-// @Tags files
-// @Accept json
-// @Produce octet-stream
-// @Param file body models.FileDownloadRequest true "File metadata"
-// @Success 200 {file} file "File content"
-// @Failure 400 {string} string "Invalid request"
-// @Failure 500 {string} string "Internal server error"
-// @Router /download [get]
+//	@Summary		Download a file
+//	@Description	Download a file with path
+//	@Tags			files
+//	@Accept			json
+//	@Produce		octet-stream
+//	@Param			file	body		models.FileDownloadRequest	true	"File metadata"
+//	@Success		200		{file}		file						"File content"
+//	@Failure		400		{string}	string						"Invalid request"
+//	@Failure		500		{string}	string						"Internal server error"
+//	@Router			/download [post]
 func (a *App) downloadFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	f := models.FileDownloadRequest{}

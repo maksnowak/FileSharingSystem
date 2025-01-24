@@ -96,7 +96,7 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(files) == 0 {
-		respondWithError(w, http.StatusNotFound, "No files found")
+		respondWithError(w, http.StatusNoContent, string(json.RawMessage("[]")))
 		return
 	}
 	respondWithJSON(w, http.StatusOK, files)
@@ -104,14 +104,14 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 
 // getFilesByUser godoc
 //
-//  @Summary    Retrieve files by user
-//  @Description Retrieve information about all files uploaded by a specific user
-//  @Tags       files
-//  @Produce    json
-//  @Param      user_id path    string      true    "User ID"
-//  @Success    200     {array}     models.File "Files uploaded by the user"
-//  @Failure    500     {string}    string      "Internal server error"
-//  @Router     /files/user/{user_id} [get]
+//	@Summary		Retrieve files by user
+//	@Description	Retrieve information about all files uploaded by a specific user
+//	@Tags			files
+//	@Produce		json
+//	@Param			user_id	path		string		true	"User ID"
+//	@Success		200		{array}		models.File	"Files uploaded by the user"
+//	@Failure		500		{string}	string		"Internal server error"
+//	@Router			/files/user/{user_id} [get]
 func (a *App) getFilesByUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
@@ -123,6 +123,10 @@ func (a *App) getFilesByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(files) == 0 {
+		respondWithError(w, http.StatusNoContent, string(json.RawMessage("[]")))
+		return
+	}
 	respondWithJSON(w, http.StatusOK, files)
 }
 
@@ -148,7 +152,7 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f := models.File{FileID: id}
+	f := models.File{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&f); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload:"+err.Error())
@@ -156,7 +160,9 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := db.UpdateFile(&ctx, a.MongoCollection, f); err != nil {
+	f.FileID = id
+	f, err = db.UpdateFile(&ctx, a.MongoCollection, f)
+	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			respondWithError(w, http.StatusNotFound, "File not found")
 			return
