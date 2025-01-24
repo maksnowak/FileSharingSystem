@@ -1,6 +1,7 @@
 parameters:
   appName: ""
   port: ""
+  directory: ""
 
 jobs:
   - job: SSH_and_Deploy
@@ -14,9 +15,11 @@ jobs:
       - script: |
           ssh -o StrictHostKeyChecking=no $(SSH_USER)@$(SSH_HOST) << 'EOF'
             echo "SSH Connection Established"
-            echo "MONGODB_URI=$(MONGODB_URI)" > .env
+            mkdir -p ${{ parameters.directory }}
+            echo "MONGODB_URI=$(MONGODB_URI)" > ${{ parameters.directory }}/.env
+            echo "APP_ENV=prod" >> ${{ parameters.directory }}/.env
             docker pull $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
-            docker run --env-file .env -d -p ${{ parameters.port }} $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
+            docker run --env-file ${{ parameters.directory }}/.env -v ${{ parameters.directory }}:/app/config -d -p ${{ parameters.port }} $(dockerRegistry)/${{ parameters.appName }}:$(Build.BuildId)
           EOF
         displayName: SSH into VM and run Docker image
         env:
