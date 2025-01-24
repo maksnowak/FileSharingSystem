@@ -10,7 +10,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type App struct {
@@ -19,21 +20,41 @@ type App struct {
 	Logger          *log.Logger
 	MongoClient     *mongo.Client
 	MongoCollection *mongo.Collection
+	BlobStorage     db.BlobStorage
 }
 
-func (a *App) Initialize() {
+func (a *App) Initialize(ctx *context.Context) {
 	a.Router = mux.NewRouter().StrictSlash(true)
 	a.Logger = log.New(os.Stdout, "server: ", log.Flags())
 
+	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
+
+	_ = godotenv.Load("./.env")
+
+	storageType := os.Getenv("STORAGE_TYPE")
+
+	if storageType == "local" {
+		path := os.Getenv("LOCAL_STORAGE_PATH")
+		a.BlobStorage, _ = db.InitLocalBlobStorage(path)
+	} else {
+		a.BlobStorage, _ = db.InitAzureBlobStorage("files")
+	}
+
 	logMiddleware := NewLogMiddleware(a.Logger)
+  corsMiddleware := NewCORSMiddleware(
+    []string{"http://localhost:8080"}, // Allowed origins
+    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},     // Allowed methods
+    []string{"Content-Type", "Authorization"},              // Allowed headers
+    true,
+  )
 	a.Router.Use(logMiddleware.Func())
+  a.Router.Use(corsMiddleware.Func())
 
 	a.initRoutes()
 }
 
 func (a *App) Run(ctx *context.Context, addr string) {
 	a.Server = &http.Server{Addr: addr, Handler: a.Router}
-	a.MongoCollection, a.MongoClient = db.InitMongo(ctx)
 
 	a.Logger.Println("Server is ready to handle requests at :8080")
 	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {

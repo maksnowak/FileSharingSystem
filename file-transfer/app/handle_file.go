@@ -7,8 +7,9 @@ import (
 
 	"file-transfer/db"
 	"file-transfer/models"
+
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // createFile godoc
@@ -19,10 +20,10 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Param			file	body		models.File	true	"File object to create"
-//	@Success		200		{object}	models.File	"Created file object"
+//	@Success		201		{object}	models.File	"Created file object"
 //	@Failure		400		{string}	string		"Invalid request payload"
 //	@Failure		500		{string}	string		"Internal server error"
-//	@Router			/files [post]
+//	@Router			/file [post]
 func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	f := models.File{}
@@ -34,12 +35,13 @@ func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := db.CreateFile(&ctx, a.MongoCollection, f); err != nil {
+	file, err := db.CreateFile(&ctx, a.MongoCollection, f)
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, f)
+	respondWithJSON(w, http.StatusCreated, file)
 }
 
 // getFile godoc
@@ -52,11 +54,11 @@ func (a *App) createFile(w http.ResponseWriter, r *http.Request) {
 //	@Success		200		{object}	models.File	"Retrieved file object"
 //	@Failure		400		{string}	string		"Invalid file ID"
 //	@Failure		500		{string}	string		"Internal server error"
-//	@Router			/files/{file_id} [get]
+//	@Router			/file/{file_id} [get]
 func (a *App) getFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(vars["file_id"])
+	id, err := bson.ObjectIDFromHex(vars["file_id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid file ID")
 		return
@@ -65,6 +67,10 @@ func (a *App) getFile(w http.ResponseWriter, r *http.Request) {
 	f := models.File{FileID: id}
 	f, err = db.GetFile(&ctx, a.MongoCollection, f)
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			respondWithError(w, http.StatusNotFound, "File not found")
+			return
+		}
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -89,7 +95,39 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, files)
+	if len(files) == 0 {
+		respondWithError(w, http.StatusNoContent, string(json.RawMessage("[]")))
+		return
+	}
+	respondWithJSON(w, http.StatusOK, files)
+}
+
+// getFilesByUser godoc
+//
+//	@Summary		Retrieve files by user
+//	@Description	Retrieve information about all files uploaded by a specific user
+//	@Tags			files
+//	@Produce		json
+//	@Param			user_id	path		string		true	"User ID"
+//	@Success		200		{array}		models.File	"Files uploaded by the user"
+//	@Failure		500		{string}	string		"Internal server error"
+//	@Router			/file/user/{user_id} [get]
+func (a *App) getFilesByUser(w http.ResponseWriter, r *http.Request) {
+	ctx := context.TODO()
+	vars := mux.Vars(r)
+	userID := vars["user_id"]
+
+	files, err := db.GetFilesByUserID(&ctx, a.MongoCollection, userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if len(files) == 0 {
+		respondWithError(w, http.StatusNoContent, string(json.RawMessage("[]")))
+		return
+	}
+	respondWithJSON(w, http.StatusOK, files)
 }
 
 // updateFile godoc
@@ -104,17 +142,17 @@ func (a *App) getAllFiles(w http.ResponseWriter, r *http.Request) {
 //	@Success		200		{object}	models.File	"Updated file object"
 //	@Failure		400		{string}	string		"Invalid request payload or file ID"
 //	@Failure		500		{string}	string		"Internal server error"
-//	@Router			/files/{file_id} [put]
+//	@Router			/file/{file_id} [put]
 func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(vars["file_id"])
+	id, err := bson.ObjectIDFromHex(vars["file_id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid file ID")
 		return
 	}
 
-	f := models.File{FileID: id}
+	f := models.File{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&f); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload:"+err.Error())
@@ -122,7 +160,13 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := db.UpdateFile(&ctx, a.MongoCollection, f); err != nil {
+  f.FileID = id
+	f, err = db.UpdateFile(&ctx, a.MongoCollection, f)
+  if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			respondWithError(w, http.StatusNotFound, "File not found")
+			return
+		}
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -140,12 +184,16 @@ func (a *App) updateFile(w http.ResponseWriter, r *http.Request) {
 //	@Success		200		{object}	map[string]string	"Result: success"
 //	@Failure		400		{string}	string				"Invalid file ID"
 //	@Failure		500		{string}	string				"Internal server error"
-//	@Router			/files/{file_id} [delete]
+//	@Router			/file/{file_id} [delete]
 func (a *App) deleteFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.TODO()
 	vars := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(vars["file_id"])
+	id, err := bson.ObjectIDFromHex(vars["file_id"])
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			respondWithError(w, http.StatusNotFound, "File not found")
+			return
+		}
 		respondWithError(w, http.StatusBadRequest, "Invalid file ID")
 		return
 	}

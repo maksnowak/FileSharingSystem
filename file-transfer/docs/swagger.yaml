@@ -2,10 +2,8 @@ basePath: /
 definitions:
   models.File:
     properties:
-      data:
-        items:
-          type: integer
-        type: array
+      blob_url:
+        type: string
       file_name:
         type: string
       has_access:
@@ -15,10 +13,30 @@ definitions:
         type: array
       id:
         type: string
+      path:
+        type: string
       tags:
         items:
           type: string
         type: array
+      user_id:
+        type: string
+    type: object
+  models.FileDownloadRequest:
+    properties:
+      path:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.FileResponse:
+    properties:
+      path:
+        type: string
+      size:
+        type: integer
+      url:
+        type: string
       user_id:
         type: string
     type: object
@@ -31,25 +49,37 @@ info:
   title: File transfer API
   version: "0.2"
 paths:
-  /files:
-    get:
-      description: Retrieve information about all existing files
-      produces:
+  /download:
+    post:
+      consumes:
       - application/json
+      description: Download a file with path
+      parameters:
+      - description: File metadata
+        in: body
+        name: file
+        required: true
+        schema:
+          $ref: '#/definitions/models.FileDownloadRequest'
+      produces:
+      - application/octet-stream
       responses:
         "200":
-          description: Every existing file
+          description: File content
           schema:
-            items:
-              $ref: '#/definitions/models.File'
-            type: array
+            type: file
+        "400":
+          description: Invalid request
+          schema:
+            type: string
         "500":
           description: Internal server error
           schema:
             type: string
-      summary: Retrieve all files
+      summary: Download a file
       tags:
       - files
+  /file:
     post:
       consumes:
       - application/json
@@ -64,7 +94,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "201":
           description: Created file object
           schema:
             $ref: '#/definitions/models.File'
@@ -79,7 +109,7 @@ paths:
       summary: Create a new file
       tags:
       - files
-  /files/{file_id}:
+  /file/{file_id}:
     delete:
       description: Remove a file from the database by its ID
       parameters:
@@ -166,6 +196,84 @@ paths:
           schema:
             type: string
       summary: Update an existing file
+      tags:
+      - files
+  /file/user/{user_id}:
+    get:
+      description: Retrieve information about all files uploaded by a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Files uploaded by the user
+          schema:
+            items:
+              $ref: '#/definitions/models.File'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Retrieve files by user
+      tags:
+      - files
+  /files:
+    get:
+      description: Retrieve information about all existing files
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Every existing file
+          schema:
+            items:
+              $ref: '#/definitions/models.File'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Retrieve all files
+      tags:
+      - files
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload file with path and content
+      parameters:
+      - description: JSON metadata with path
+        in: formData
+        name: metadata
+        required: true
+        type: string
+      - description: File content
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FileResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Upload a file
       tags:
       - files
 swagger: "2.0"
